@@ -1,0 +1,3 @@
+INSERT INTO PUBLIC.RESTAURANTS (ID, NAME)
+VALUES (1, 'First'),
+       (2, 'Second');
