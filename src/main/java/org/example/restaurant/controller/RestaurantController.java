@@ -7,10 +7,10 @@ import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 
-import java.util.stream.Collectors;
+import java.util.List;
 
 @RestController
-@RequestMapping
+@RequestMapping("/restaurants")
 public class RestaurantController {
 
     private final RestaurantRepository restaurantRepository;
@@ -20,9 +20,7 @@ public class RestaurantController {
     }
 
     @GetMapping
-    public ResponseEntity<String> getAll() {
-        return ResponseEntity.ok(restaurantRepository.findAll().stream()
-                .map(Restaurant::getName)
-                .collect(Collectors.joining(" ")));
+    public ResponseEntity<List<Restaurant>> getAll() {
+        return ResponseEntity.ok(restaurantRepository.findAll());
     }
 }

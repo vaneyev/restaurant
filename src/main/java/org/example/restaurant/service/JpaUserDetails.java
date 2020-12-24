@@ -7,7 +7,7 @@ import java.util.Collection;
 
 public class JpaUserDetails extends User {
 
-    public JpaUserDetails(Collection<? extends GrantedAuthority> authorities) {
-        super("user", "{noop}pass", authorities);
+    public JpaUserDetails(org.example.restaurant.model.User user, Collection<? extends GrantedAuthority> authorities) {
+        super(user.getName(), user.getPassword(), authorities);
     }
 }

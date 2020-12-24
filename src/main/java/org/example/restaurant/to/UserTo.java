@@ -1,17 +1,15 @@
-package org.example.restaurant.model;
+package org.example.restaurant.to;
 
-import javax.persistence.Entity;
-import javax.persistence.Id;
-import javax.persistence.Table;
-
-@Entity
-@Table(name = "users", schema = "public")
-public class User {
-    @Id
+public class UserTo {
     private Long id;
     private String name;
-    private String password;
     private Boolean isAdmin;
+
+    public UserTo(Long id, String name, Boolean isAdmin) {
+        this.id = id;
+        this.name = name;
+        this.isAdmin = isAdmin;
+    }
 
     public Long getId() {
         return id;
@@ -27,14 +25,6 @@ public class User {
 
     public void setName(String name) {
         this.name = name;
-    }
-
-    public String getPassword() {
-        return password;
-    }
-
-    public void setPassword(String password) {
-        this.password = password;
     }
 
     public Boolean isAdmin() {
