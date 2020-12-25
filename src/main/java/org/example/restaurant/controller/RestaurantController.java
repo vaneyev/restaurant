@@ -1,7 +1,9 @@
 package org.example.restaurant.controller;
 
 import org.example.restaurant.model.Restaurant;
+import org.example.restaurant.model.Vote;
 import org.example.restaurant.repository.RestaurantRepository;
+import org.example.restaurant.repository.VoteRepository;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.RequestMapping;
