@@ -1,28 +1,15 @@
-create sequence GLOBAL_SEQUENCE
-    minvalue 100;
-
 create table RESTAURANTS
 (
-    ID   BIGINT
-        default NEXT VALUE FOR "PUBLIC"."GLOBAL_SEQUENCE"
-        not null
-        primary key,
-    NAME VARCHAR
-        not null
+    ID   IDENTITY primary key,
+    NAME VARCHAR not null
 );
 
 create table USERS
 (
-    ID       BIGINT
-        default NEXT VALUE FOR "PUBLIC"."GLOBAL_SEQUENCE"
-        not null
-        primary key,
-    NAME     VARCHAR
-        not null,
-    PASSWORD VARCHAR
-        not null,
-    IS_ADMIN BOOLEAN
-        not null
+    ID       IDENTITY primary key,
+    NAME     VARCHAR not null,
+    PASSWORD VARCHAR not null,
+    IS_ADMIN BOOLEAN not null
 );
 
 create unique index USERS_NAME_UINDEX
@@ -30,9 +17,7 @@ create unique index USERS_NAME_UINDEX
 
 create table MENUS
 (
-    ID            BIGINT
-        default NEXT VALUE FOR "PUBLIC"."GLOBAL_SEQUENCE"
-        not null,
+    ID            IDENTITY primary key,
     RESTAURANT_ID BIGINT
         not null,
     DATE          DATE
@@ -49,15 +34,10 @@ create unique index MENUS_RESTAURANT_ID_DATE_UINDEX
 
 create table DISHES
 (
-    ID      BIGINT
-        default NEXT VALUE FOR "PUBLIC"."GLOBAL_SEQUENCE"
-        not null,
-    NAME    VARCHAR
-        not null,
-    MENU_ID BIGINT
-        not null,
-    PRICE   INT
-        not null,
+    ID      IDENTITY primary key,
+    NAME    VARCHAR not null,
+    MENU_ID BIGINT  not null,
+    PRICE   INT     not null,
     constraint MENU_ITEMS_PK
         primary key (ID),
     constraint MENU_ITEMS_MENUS_ID_FK
@@ -67,17 +47,10 @@ create table DISHES
 
 create table VOTES
 (
-    ID            BIGINT
-        default NEXT VALUE FOR "PUBLIC"."GLOBAL_SEQUENCE"
-        not null,
-    USER_ID       BIGINT
-        not null,
-    RESTAURANT_ID BIGINT
-        not null,
-    DATE          DATE
-        not null,
-    constraint VOTES_PK
-        primary key (ID),
+    ID            IDENTITY primary key,
+    USER_ID       BIGINT not null,
+    RESTAURANT_ID BIGINT not null,
+    DATE          DATE   not null,
     constraint VOTES_RESTAURANTS_ID_FK
         foreign key (RESTAURANT_ID) references RESTAURANTS (ID),
     constraint VOTES_USERS_ID_FK

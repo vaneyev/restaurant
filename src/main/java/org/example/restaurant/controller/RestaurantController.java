@@ -1,13 +1,9 @@
 package org.example.restaurant.controller;
 
 import org.example.restaurant.model.Restaurant;
-import org.example.restaurant.model.Vote;
 import org.example.restaurant.repository.RestaurantRepository;
-import org.example.restaurant.repository.VoteRepository;
 import org.springframework.http.ResponseEntity;
-import org.springframework.web.bind.annotation.GetMapping;
-import org.springframework.web.bind.annotation.RequestMapping;
-import org.springframework.web.bind.annotation.RestController;
+import org.springframework.web.bind.annotation.*;
 
 import java.util.List;
 
@@ -24,5 +20,10 @@ public class RestaurantController {
     @GetMapping
     public ResponseEntity<List<Restaurant>> getAll() {
         return ResponseEntity.ok(restaurantRepository.findAll());
+    }
+
+    @PostMapping
+    public ResponseEntity<Restaurant> create(@RequestBody Restaurant restaurant) {
+        return ResponseEntity.ok(restaurantRepository.save(restaurant));
     }
 }

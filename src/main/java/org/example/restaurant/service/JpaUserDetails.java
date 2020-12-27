@@ -1,13 +1,24 @@
 package org.example.restaurant.service;
 
+import org.example.restaurant.model.User;
 import org.springframework.security.core.GrantedAuthority;
-import org.springframework.security.core.userdetails.User;
 
 import java.util.Collection;
 
-public class JpaUserDetails extends User {
+public class JpaUserDetails extends org.springframework.security.core.userdetails.User {
 
-    public JpaUserDetails(org.example.restaurant.model.User user, Collection<? extends GrantedAuthority> authorities) {
+    private final User user;
+
+    public JpaUserDetails(User user, Collection<? extends GrantedAuthority> authorities) {
         super(user.getName(), user.getPassword(), authorities);
+        this.user = user;
+    }
+
+    public Long getId() {
+        return user.getId();
+    }
+
+    public boolean isAdmin() {
+        return user.isAdmin();
     }
 }

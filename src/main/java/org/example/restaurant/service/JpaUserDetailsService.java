@@ -2,7 +2,6 @@ package org.example.restaurant.service;
 
 import org.example.restaurant.model.User;
 import org.example.restaurant.repository.UserRepository;
-import org.springframework.data.domain.Example;
 import org.springframework.security.core.GrantedAuthority;
 import org.springframework.security.core.authority.SimpleGrantedAuthority;
 import org.springframework.security.core.userdetails.UserDetails;

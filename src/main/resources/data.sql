@@ -14,9 +14,10 @@ VALUES (1, 1, '2020-12-25'),
 INSERT INTO PUBLIC.DISHES (ID, MENU_ID, NAME, PRICE)
 VALUES (1, 1, 'Fish', 10),
        (2, 1, 'Potato', 2),
-       (3, 2, 'Beacon', 15);
+       (3, 2, 'Tomatoes', 3),
+       (4, 3, 'Beacon', 15);
 
 INSERT INTO PUBLIC.VOTES (ID, USER_ID, RESTAURANT_ID, DATE)
-VALUES (1, 1, 1,  '2020-12-25'),
-       (2, 2, 1,  '2020-12-25'),
-       (3, 1, 2,  '2020-12-25');
+VALUES (1, 1, 1,  '2020-12-26'),
+       (2, 2, 1,  '2020-12-26'),
+       (3, 1, 2,  '2020-12-26');

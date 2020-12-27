@@ -1,6 +1,8 @@
 package org.example.restaurant.model;
 
 import com.fasterxml.jackson.annotation.JsonManagedReference;
+import org.hibernate.annotations.Fetch;
+import org.hibernate.annotations.FetchMode;
 
 import javax.persistence.*;
 import java.time.LocalDate;
@@ -8,25 +10,15 @@ import java.util.List;
 
 @Entity
 @Table(name = "menus", schema = "public")
-public class Menu {
-    @Id
-    private Long id;
-
+public class Menu extends AbstractBaseEntity{
     private Long restaurantId;
 
     private LocalDate date;
 
-    @OneToMany(mappedBy = "menu")
+    @OneToMany(mappedBy = "menu", fetch = FetchType.EAGER, cascade = CascadeType.ALL)
     @JsonManagedReference
+    @Fetch(FetchMode.SUBSELECT)
     private List<Dish> dishes;
-
-    public Long getId() {
-        return id;
-    }
-
-    public void setId(Long id) {
-        this.id = id;
-    }
 
     public Long getRestaurantId() {
         return restaurantId;
@@ -35,7 +27,6 @@ public class Menu {
     public void setRestaurantId(Long restaurantId) {
         this.restaurantId = restaurantId;
     }
-
 
     public LocalDate getDate() {
         return date;

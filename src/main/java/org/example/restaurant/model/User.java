@@ -1,32 +1,24 @@
 package org.example.restaurant.model;
 
-import javax.persistence.Entity;
-import javax.persistence.Id;
-import javax.persistence.Table;
+import com.fasterxml.jackson.annotation.JsonProperty;
+
+import javax.persistence.*;
 
 @Entity
 @Table(name = "users", schema = "public")
-public class User {
-    @Id
-    private Long id;
-    private String name;
+public class User extends AbstractNamedEntity{
+    @JsonProperty(access = JsonProperty.Access.WRITE_ONLY)
     private String password;
     private Boolean isAdmin;
 
-    public Long getId() {
-        return id;
+    public User(Long id, String name, Boolean isAdmin) {
+        super.setId(id);
+        super.setName(name);
+        this.isAdmin = isAdmin;
     }
 
-    public void setId(Long id) {
-        this.id = id;
-    }
+    public User() {
 
-    public String getName() {
-        return name;
-    }
-
-    public void setName(String name) {
-        this.name = name;
     }
 
     public String getPassword() {

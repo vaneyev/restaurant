@@ -1,47 +1,40 @@
 package org.example.restaurant.model;
 
-import com.fasterxml.jackson.annotation.JsonIgnore;
-
-import javax.persistence.*;
+import javax.persistence.Entity;
+import javax.persistence.Table;
 import java.time.LocalDate;
 
 @Entity
 @Table(name = "votes", schema = "public")
-public class Vote {
-    @Id
-    private Long id;
-    @ManyToOne
-    @JoinColumn(name = "user_id")
-    @JsonIgnore
-    private User user;
-    @ManyToOne
-    @JoinColumn(name = "restaurant_id")
-    @JsonIgnore
-    private Restaurant restaurant;
+public class Vote extends AbstractBaseEntity{
+    private Long userId;
+    private Long restaurantId;
     private LocalDate date;
 
-    public Long getId() {
-        return id;
+    public Vote(Long userId, Long restaurantId, LocalDate date) {
+        this.userId = userId;
+        this.restaurantId = restaurantId;
+        this.date = date;
     }
 
-    public void setId(Long id) {
-        this.id = id;
+    public Vote() {
+
     }
 
-    public User getUser() {
-        return user;
+    public Long getUserId() {
+        return userId;
     }
 
-    public void setUser(User user) {
-        this.user = user;
+    public void setUserId(Long userId) {
+        this.userId = userId;
     }
 
-    public Restaurant getRestaurant() {
-        return restaurant;
+    public Long getRestaurantId() {
+        return restaurantId;
     }
 
-    public void setRestaurant(Restaurant restaurant) {
-        this.restaurant = restaurant;
+    public void setRestaurantId(Long restaurantId) {
+        this.restaurantId = restaurantId;
     }
 
     public LocalDate getDate() {

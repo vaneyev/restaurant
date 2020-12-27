@@ -4,10 +4,8 @@ import org.example.restaurant.model.Menu;
 import org.example.restaurant.repository.MenuRepository;
 import org.springframework.format.annotation.DateTimeFormat;
 import org.springframework.http.ResponseEntity;
-import org.springframework.web.bind.annotation.GetMapping;
-import org.springframework.web.bind.annotation.PathVariable;
-import org.springframework.web.bind.annotation.RequestMapping;
-import org.springframework.web.bind.annotation.RestController;
+import org.springframework.transaction.annotation.Transactional;
+import org.springframework.web.bind.annotation.*;
 
 import java.time.LocalDate;
 import java.util.List;
@@ -22,8 +20,14 @@ public class MenuController {
         this.menuRepository = menuRepository;
     }
 
-    @GetMapping("/restaurant/{id}/date/{date}")
-    public ResponseEntity<List<Menu>> getByRestaurantId(@PathVariable Long id, @PathVariable @DateTimeFormat(iso = DateTimeFormat.ISO.DATE) LocalDate date) {
-        return ResponseEntity.ok(menuRepository.findByRestaurantIdAndDate(id, date));
+    @GetMapping("/date/{date}")
+    public ResponseEntity<List<Menu>> getByDate(@PathVariable @DateTimeFormat(iso = DateTimeFormat.ISO.DATE) LocalDate date) {
+        return ResponseEntity.ok(menuRepository.findByDate(date));
+    }
+
+    @PostMapping
+    @Transactional
+    public ResponseEntity<Menu> create(@RequestBody Menu menu) {
+        return ResponseEntity.ok(menuRepository.save(menu));
     }
 }
