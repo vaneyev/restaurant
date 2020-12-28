@@ -2,10 +2,10 @@ package org.example.restaurant.controller;
 
 import org.example.restaurant.model.Vote;
 import org.example.restaurant.repository.VoteRepository;
+import org.example.restaurant.service.ClockService;
 import org.example.restaurant.service.JpaUserDetails;
 import org.springframework.data.domain.Example;
 import org.springframework.format.annotation.DateTimeFormat;
-import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.core.annotation.AuthenticationPrincipal;
 import org.springframework.transaction.annotation.Transactional;
@@ -19,10 +19,15 @@ import java.util.Optional;
 @RestController
 @RequestMapping("/votes")
 public class VoteController {
+    private final static LocalTime limitTime = LocalTime.of(11, 0);
+
     private final VoteRepository voteRepository;
 
-    public VoteController(VoteRepository voteRepository) {
+    private final ClockService clockService;
+
+    public VoteController(VoteRepository voteRepository, ClockService clockService) {
         this.voteRepository = voteRepository;
+        this.clockService = clockService;
     }
 
     @GetMapping
@@ -36,21 +41,22 @@ public class VoteController {
             @PathVariable Long restaurantId,
             @PathVariable @DateTimeFormat(iso = DateTimeFormat.ISO.DATE) LocalDate date
     ) {
-        return ResponseEntity.ok(voteRepository.findOne(Example.of(new Vote(restaurantId, user.getId(), date))).isPresent());
+        return ResponseEntity.ok(voteRepository.findOne(Example.of(new Vote(user.getId(), restaurantId, date))).isPresent());
     }
 
     @PutMapping
     @Transactional
-    @ResponseStatus(HttpStatus.NO_CONTENT)
-    public void vote(@AuthenticationPrincipal JpaUserDetails user, @RequestBody Long restaurantId) {
-        Vote vote = new Vote(restaurantId, user.getId(), LocalDate.now());
+    public ResponseEntity<Object> vote(@AuthenticationPrincipal JpaUserDetails user, @RequestBody Long restaurantId) {
+        Vote vote = new Vote(user.getId(), restaurantId, LocalDate.now(clockService.getClock()));
         Optional<Vote> oldVote = voteRepository.findOne(Example.of(vote));
-        if (LocalTime.now().isBefore(LocalTime.of(11, 0))) {
+        if (LocalTime.now(clockService.getClock()).isBefore(limitTime)) {
             if (oldVote.isPresent()) {
                 voteRepository.delete(oldVote.get());
             } else {
                 voteRepository.save(vote);
             }
+            return ResponseEntity.noContent().build();
         }
+        return ResponseEntity.badRequest().body("Too late.");
     }
 }
