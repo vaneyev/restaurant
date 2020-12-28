@@ -18,7 +18,6 @@ import java.util.Optional;
 
 @RestController
 @RequestMapping("/votes")
-@Transactional(readOnly = true)
 public class VoteController {
     private final VoteRepository voteRepository;
 

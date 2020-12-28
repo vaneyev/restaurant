@@ -52,7 +52,8 @@ create table VOTES
     RESTAURANT_ID BIGINT not null,
     DATE          DATE   not null,
     constraint VOTES_RESTAURANTS_ID_FK
-        foreign key (RESTAURANT_ID) references RESTAURANTS (ID),
+        foreign key (RESTAURANT_ID) references RESTAURANTS (ID)
+            on delete cascade,
     constraint VOTES_USERS_ID_FK
         foreign key (USER_ID) references USERS (ID)
 );
