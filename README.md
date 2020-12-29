@@ -7,7 +7,7 @@ curl -u User:pass -i http://localhost:8080/votes -X PUT -H "Content-Type: applic
 ```
 ##Get user vote status for a restaurant by day
 ```shell
-curl -u User:pass -i http://localhost:8080/votes/restaurant/1/date/2020-12-26 -X GET | less
+curl -u User:pass -i http://localhost:8080/votes/restaurant/1/date/2020-12-25 -X GET | less
 ```
 ##Get user profile
 ```shell
@@ -23,5 +23,5 @@ curl -u Admin:pass -i http://localhost:8080/restaurants -X POST -H "Content-Type
 ```
 ##Create menu
 ```shell
-curl -u Admin:pass -i http://localhost:8080/menus -X POST -H "Content-Type: application/json" --data '{"restaurantId":1, "date":"2020-12-27", "dishes":[{"name":"Oranges", "price":7}]}' | less
+curl -u Admin:pass -i http://localhost:8080/menus -X POST -H "Content-Type: application/json" --data '{"restaurant": {"id":1}, "date":"2020-12-27", "dishes":[{"name":"Oranges", "price":7}]}' | less
 ```

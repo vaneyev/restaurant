@@ -1,6 +1,10 @@
 package org.example.restaurant.model;
 
 import com.fasterxml.jackson.annotation.JsonManagedReference;
+import com.fasterxml.jackson.databind.annotation.JsonDeserialize;
+import com.fasterxml.jackson.databind.annotation.JsonSerialize;
+import com.fasterxml.jackson.datatype.jsr310.deser.LocalDateDeserializer;
+import com.fasterxml.jackson.datatype.jsr310.ser.LocalDateSerializer;
 import org.hibernate.annotations.Fetch;
 import org.hibernate.annotations.FetchMode;
 
@@ -12,9 +16,14 @@ import java.util.List;
 @Entity
 @Table(name = "menus", schema = "public")
 public class Menu extends AbstractBaseEntity {
-    @NotNull
-    private Long restaurantId;
 
+    @ManyToOne
+    @JoinColumn(name = "restaurant_id")
+    @NotNull
+    private Restaurant restaurant;
+
+    @JsonDeserialize(using = LocalDateDeserializer.class)
+    @JsonSerialize(using = LocalDateSerializer.class)
     @NotNull
     private LocalDate date;
 
@@ -23,12 +32,12 @@ public class Menu extends AbstractBaseEntity {
     @Fetch(FetchMode.SUBSELECT)
     private List<Dish> dishes;
 
-    public Long getRestaurantId() {
-        return restaurantId;
+    public Restaurant getRestaurant() {
+        return restaurant;
     }
 
-    public void setRestaurantId(Long restaurantId) {
-        this.restaurantId = restaurantId;
+    public void setRestaurant(Restaurant restaurant) {
+        this.restaurant = restaurant;
     }
 
     public LocalDate getDate() {

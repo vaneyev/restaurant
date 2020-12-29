@@ -13,7 +13,6 @@ import org.springframework.web.bind.annotation.*;
 
 import java.time.LocalDate;
 import java.time.LocalTime;
-import java.util.List;
 import java.util.Optional;
 
 @RestController
@@ -30,9 +29,12 @@ public class VoteController {
         this.clockService = clockService;
     }
 
-    @GetMapping
-    public ResponseEntity<List<Vote>> getAll() {
-        return ResponseEntity.ok(voteRepository.findAll());
+    @GetMapping("/count/restaurant/{restaurantId}/date/{date}")
+    public ResponseEntity<Long> getCount(
+            @PathVariable Long restaurantId,
+            @PathVariable @DateTimeFormat(iso = DateTimeFormat.ISO.DATE) LocalDate date
+    ) {
+        return ResponseEntity.ok(voteRepository.countByRestaurantIdAndDate(restaurantId, date));
     }
 
     @GetMapping("/restaurant/{restaurantId}/date/{date}")

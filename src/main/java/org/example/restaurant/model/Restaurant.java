@@ -5,5 +5,5 @@ import javax.persistence.Table;
 
 @Entity
 @Table(name = "restaurants", schema = "public")
-public class Restaurant extends AbstractNamedEntity{
+public class Restaurant extends AbstractNamedEntity {
 }

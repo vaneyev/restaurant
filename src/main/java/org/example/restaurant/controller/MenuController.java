@@ -44,7 +44,10 @@ public class MenuController {
     @Transactional
     public ResponseEntity<Object> create(@RequestBody @Valid Menu menu, BindingResult bindingResult) {
         menu.setId(null);
-        if (menuRepository.findFirstByRestaurantIdAndDate(menu.getRestaurantId(), menu.getDate()).isPresent()) {
+        if (menu.getRestaurant() == null || menu.getRestaurant().getId() == null) {
+            return ResponseEntity.badRequest().body("Restaurant and its id must not be null.");
+        }
+        if (menuRepository.findFirstByRestaurantIdAndDate(menu.getRestaurant().getId(), menu.getDate()).isPresent()) {
             return ResponseEntity.badRequest().body("Menu with these restaurant and date is already created.");
         }
         menu.getDishes().forEach(dish -> {
@@ -52,7 +55,7 @@ public class MenuController {
             validator.validate(dish, bindingResult);
         });
         if (bindingResult.hasErrors()) {
-            return getDishErrorResponseEntity();
+            return getDishErrorResponseEntity(bindingResult);
         }
         Menu created = menuRepository.save(menu);
         URI uriOfNewResource = ServletUriComponentsBuilder.fromCurrentContextPath()
@@ -72,6 +75,7 @@ public class MenuController {
         if (oldMenu.isEmpty()) {
             return getMenuErrorResponseEntity(menu.getId());
         }
+        menu.setRestaurant(oldMenu.get().getRestaurant());
         menu.getDishes().forEach(dish -> {
             if (!oldMenu.get().getDishes().contains(dish)) {
                 dish.setId(null);
@@ -79,7 +83,7 @@ public class MenuController {
             }
         });
         if (bindingResult.hasErrors()) {
-            return getDishErrorResponseEntity();
+            return getDishErrorResponseEntity(bindingResult);
         }
         menuRepository.save(menu);
         return ResponseEntity.noContent().build();
@@ -99,7 +103,15 @@ public class MenuController {
         return ResponseEntity.badRequest().body(String.format("Menu with id %d not found.", id));
     }
 
-    private ResponseEntity<Object> getDishErrorResponseEntity() {
-        return ResponseEntity.badRequest().body("Dish data is not valid.");
+    private ResponseEntity<Object> getDishErrorResponseEntity(BindingResult bindingResult) {
+        StringBuilder stringBuilder = new StringBuilder();
+        stringBuilder.append("Dish data is not valid.\n");
+        bindingResult.getFieldErrors().forEach(fieldError -> {
+            stringBuilder.append(fieldError.getField());
+            stringBuilder.append(": ");
+            stringBuilder.append(fieldError.getDefaultMessage());
+            stringBuilder.append("\n");
+        });
+        return ResponseEntity.badRequest().body(stringBuilder.toString());
     }
 }
