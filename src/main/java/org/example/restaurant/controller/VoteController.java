@@ -2,7 +2,7 @@ package org.example.restaurant.controller;
 
 import org.example.restaurant.model.Vote;
 import org.example.restaurant.repository.VoteRepository;
-import org.example.restaurant.service.ClockService;
+import org.example.restaurant.service.DateTimeService;
 import org.example.restaurant.service.JpaUserDetails;
 import org.springframework.data.domain.Example;
 import org.springframework.format.annotation.DateTimeFormat;
@@ -12,6 +12,7 @@ import org.springframework.transaction.annotation.Transactional;
 import org.springframework.web.bind.annotation.*;
 
 import java.time.LocalDate;
+import java.time.LocalDateTime;
 import java.time.LocalTime;
 import java.util.Optional;
 
@@ -22,11 +23,11 @@ public class VoteController {
 
     private final VoteRepository voteRepository;
 
-    private final ClockService clockService;
+    private final DateTimeService dateTimeService;
 
-    public VoteController(VoteRepository voteRepository, ClockService clockService) {
+    public VoteController(VoteRepository voteRepository, DateTimeService dateTimeService) {
         this.voteRepository = voteRepository;
-        this.clockService = clockService;
+        this.dateTimeService = dateTimeService;
     }
 
     @GetMapping("/count/restaurant/{restaurantId}/date/{date}")
@@ -49,9 +50,10 @@ public class VoteController {
     @PutMapping
     @Transactional
     public ResponseEntity<Object> vote(@AuthenticationPrincipal JpaUserDetails user, @RequestBody Long restaurantId) {
-        Vote vote = new Vote(user.getId(), restaurantId, LocalDate.now(clockService.getClock()));
+        LocalDateTime dateTime = dateTimeService.getLocalDateTime();
+        Vote vote = new Vote(user.getId(), restaurantId, dateTime.toLocalDate());
         Optional<Vote> oldVote = voteRepository.findOne(Example.of(vote));
-        if (LocalTime.now(clockService.getClock()).isBefore(limitTime)) {
+        if (dateTime.toLocalTime().isBefore(limitTime)) {
             if (oldVote.isPresent()) {
                 voteRepository.delete(oldVote.get());
             } else {
