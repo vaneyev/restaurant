@@ -30,7 +30,7 @@ public class VoteController {
         this.dateTimeService = dateTimeService;
     }
 
-    @GetMapping("/count/restaurant/{restaurantId}/date/{date}")
+    @GetMapping("/count/restaurants/{restaurantId}/dates/{date}")
     public ResponseEntity<Long> getCount(
             @PathVariable Long restaurantId,
             @PathVariable @DateTimeFormat(iso = DateTimeFormat.ISO.DATE) LocalDate date
@@ -38,7 +38,7 @@ public class VoteController {
         return ResponseEntity.ok(voteRepository.countByRestaurantIdAndDate(restaurantId, date));
     }
 
-    @GetMapping("/restaurant/{restaurantId}/date/{date}")
+    @GetMapping("/restaurants/{restaurantId}/dates/{date}")
     public ResponseEntity<Boolean> get(
             @AuthenticationPrincipal JpaUserDetails user,
             @PathVariable Long restaurantId,
@@ -49,7 +49,7 @@ public class VoteController {
 
     @PutMapping
     @Transactional
-    public ResponseEntity<Object> vote(@AuthenticationPrincipal JpaUserDetails user, @RequestBody Long restaurantId) {
+    public ResponseEntity<?> vote(@AuthenticationPrincipal JpaUserDetails user, @RequestBody Long restaurantId) {
         LocalDateTime dateTime = dateTimeService.getLocalDateTime();
         Vote vote = new Vote(user.getId(), restaurantId, dateTime.toLocalDate());
         Optional<Vote> oldVote = voteRepository.findOne(Example.of(vote));

@@ -30,7 +30,7 @@ public class MenuController {
         this.validator = validator;
     }
 
-    @GetMapping("/date/{date}")
+    @GetMapping("/dates/{date}")
     public ResponseEntity<List<Menu>> getAllByDate(@PathVariable @DateTimeFormat(iso = DateTimeFormat.ISO.DATE) LocalDate date) {
         return ResponseEntity.ok(menuRepository.findByDate(date));
     }
@@ -42,7 +42,7 @@ public class MenuController {
 
     @PostMapping
     @Transactional
-    public ResponseEntity<Object> create(@RequestBody @Valid Menu menu, BindingResult bindingResult) {
+    public ResponseEntity<?> create(@RequestBody @Valid Menu menu, BindingResult bindingResult) {
         menu.setId(null);
         if (menu.getRestaurant() == null || menu.getRestaurant().getId() == null) {
             return ResponseEntity.badRequest().body("Restaurant and its id must not be null.");
@@ -67,7 +67,7 @@ public class MenuController {
 
     @PutMapping
     @Transactional
-    public ResponseEntity<Object> update(@RequestBody @Valid Menu menu, BindingResult bindingResult) {
+    public ResponseEntity<?> update(@RequestBody @Valid Menu menu, BindingResult bindingResult) {
         if (menu.getId() == null) {
             return ResponseEntity.badRequest().body("Menu id must not be null.");
         }
@@ -91,7 +91,7 @@ public class MenuController {
 
     @DeleteMapping("/{id}")
     @Transactional
-    public ResponseEntity<Object> delete(@PathVariable Long id) {
+    public ResponseEntity<?> delete(@PathVariable Long id) {
         if (menuRepository.findById(id).isEmpty()) {
             return getMenuErrorResponseEntity(id);
         }
@@ -99,11 +99,11 @@ public class MenuController {
         return ResponseEntity.noContent().build();
     }
 
-    private ResponseEntity<Object> getMenuErrorResponseEntity(Long id) {
+    private ResponseEntity<String> getMenuErrorResponseEntity(Long id) {
         return ResponseEntity.badRequest().body(String.format("Menu with id %d not found.", id));
     }
 
-    private ResponseEntity<Object> getDishErrorResponseEntity(BindingResult bindingResult) {
+    private ResponseEntity<String> getDishErrorResponseEntity(BindingResult bindingResult) {
         StringBuilder stringBuilder = new StringBuilder();
         stringBuilder.append("Dish data is not valid.\n");
         bindingResult.getFieldErrors().forEach(fieldError -> {

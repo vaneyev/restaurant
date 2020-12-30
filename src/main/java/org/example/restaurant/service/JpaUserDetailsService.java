@@ -2,8 +2,8 @@ package org.example.restaurant.service;
 
 import org.example.restaurant.model.User;
 import org.example.restaurant.repository.UserRepository;
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.cache.annotation.Cacheable;
-import org.springframework.context.ApplicationContext;
 import org.springframework.security.core.GrantedAuthority;
 import org.springframework.security.core.authority.SimpleGrantedAuthority;
 import org.springframework.security.core.userdetails.UserDetails;
@@ -11,7 +11,6 @@ import org.springframework.security.core.userdetails.UserDetailsService;
 import org.springframework.security.core.userdetails.UsernameNotFoundException;
 import org.springframework.stereotype.Service;
 
-import javax.annotation.PostConstruct;
 import java.util.Collection;
 import java.util.HashSet;
 import java.util.Optional;
@@ -19,20 +18,17 @@ import java.util.Optional;
 @Service("userDetailsService")
 public class JpaUserDetailsService implements UserDetailsService {
 
-    private final ApplicationContext applicationContext;
-
     private JpaUserDetailsService self;
-
-    @PostConstruct
-    private void init() {
-        self = applicationContext.getBean(JpaUserDetailsService.class);
-    }
 
     private final UserRepository userRepository;
 
-    public JpaUserDetailsService(UserRepository userRepository, ApplicationContext applicationContext) {
+    @Autowired
+    private void init(JpaUserDetailsService self) {
+        this.self = self;
+    }
+
+    public JpaUserDetailsService(UserRepository userRepository) {
         this.userRepository = userRepository;
-        this.applicationContext = applicationContext;
     }
 
     @Override
