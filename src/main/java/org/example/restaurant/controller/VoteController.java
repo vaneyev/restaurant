@@ -1,5 +1,7 @@
 package org.example.restaurant.controller;
 
+import lombok.RequiredArgsConstructor;
+import lombok.extern.slf4j.Slf4j;
 import org.example.restaurant.model.Vote;
 import org.example.restaurant.repository.VoteRepository;
 import org.example.restaurant.service.DateTimeService;
@@ -18,17 +20,14 @@ import java.util.Optional;
 
 @RestController
 @RequestMapping("/votes")
+@Slf4j
+@RequiredArgsConstructor
 public class VoteController {
     private final static LocalTime limitTime = LocalTime.of(11, 0);
 
     private final VoteRepository voteRepository;
 
     private final DateTimeService dateTimeService;
-
-    public VoteController(VoteRepository voteRepository, DateTimeService dateTimeService) {
-        this.voteRepository = voteRepository;
-        this.dateTimeService = dateTimeService;
-    }
 
     @GetMapping("/count/restaurants/{restaurantId}/dates/{date}")
     public ResponseEntity<Long> getCount(

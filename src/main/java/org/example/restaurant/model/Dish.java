@@ -1,6 +1,8 @@
 package org.example.restaurant.model;
 
 import com.fasterxml.jackson.annotation.JsonBackReference;
+import lombok.Getter;
+import lombok.Setter;
 
 import javax.persistence.Entity;
 import javax.persistence.JoinColumn;
@@ -11,7 +13,9 @@ import javax.validation.constraints.NotNull;
 
 @Entity
 @Table(name = "dishes", schema = "public")
-public class Dish extends AbstractNamedEntity{
+@Getter
+@Setter
+public class Dish extends AbstractNamedEntity {
     @ManyToOne
     @JoinColumn(name = "menu_id")
     @JsonBackReference
@@ -20,20 +24,4 @@ public class Dish extends AbstractNamedEntity{
     @Min(0)
     @NotNull
     private Integer price;
-
-    public Menu getMenu() {
-        return menu;
-    }
-
-    public void setMenu(Menu menu) {
-        this.menu = menu;
-    }
-
-    public Integer getPrice() {
-        return price;
-    }
-
-    public void setPrice(Integer price) {
-        this.price = price;
-    }
 }

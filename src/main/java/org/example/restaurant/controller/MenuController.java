@@ -1,5 +1,7 @@
 package org.example.restaurant.controller;
 
+import lombok.RequiredArgsConstructor;
+import lombok.extern.slf4j.Slf4j;
 import org.example.restaurant.model.Menu;
 import org.example.restaurant.repository.MenuRepository;
 import org.springframework.format.annotation.DateTimeFormat;
@@ -18,17 +20,14 @@ import java.util.Optional;
 
 @RestController
 @RequestMapping(value = MenuController.REST_URL)
+@Slf4j
+@RequiredArgsConstructor
 public class MenuController {
     public static final String REST_URL = "/menus";
 
     private final MenuRepository menuRepository;
 
     private final SmartValidator validator;
-
-    public MenuController(MenuRepository menuRepository, SmartValidator validator) {
-        this.menuRepository = menuRepository;
-        this.validator = validator;
-    }
 
     @GetMapping("/dates/{date}")
     public ResponseEntity<List<Menu>> getAllByDate(@PathVariable @DateTimeFormat(iso = DateTimeFormat.ISO.DATE) LocalDate date) {

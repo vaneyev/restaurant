@@ -1,5 +1,6 @@
 package org.example.restaurant.service;
 
+import lombok.RequiredArgsConstructor;
 import org.example.restaurant.model.User;
 import org.example.restaurant.repository.UserRepository;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -16,6 +17,7 @@ import java.util.HashSet;
 import java.util.Optional;
 
 @Service("userDetailsService")
+@RequiredArgsConstructor
 public class JpaUserDetailsService implements UserDetailsService {
 
     private JpaUserDetailsService self;
@@ -25,10 +27,6 @@ public class JpaUserDetailsService implements UserDetailsService {
     @Autowired
     private void init(JpaUserDetailsService self) {
         this.self = self;
-    }
-
-    public JpaUserDetailsService(UserRepository userRepository) {
-        this.userRepository = userRepository;
     }
 
     @Override

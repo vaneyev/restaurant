@@ -1,5 +1,7 @@
 package org.example.restaurant.controller;
 
+import lombok.RequiredArgsConstructor;
+import lombok.extern.slf4j.Slf4j;
 import org.example.restaurant.model.Restaurant;
 import org.example.restaurant.repository.RestaurantRepository;
 import org.springframework.http.ResponseEntity;
@@ -13,14 +15,12 @@ import java.util.List;
 
 @RestController
 @RequestMapping(value = RestaurantController.REST_URL)
+@Slf4j
+@RequiredArgsConstructor
 public class RestaurantController {
     public static final String REST_URL = "/restaurants";
 
     private final RestaurantRepository restaurantRepository;
-
-    public RestaurantController(RestaurantRepository restaurantRepository) {
-        this.restaurantRepository = restaurantRepository;
-    }
 
     @GetMapping
     public ResponseEntity<List<Restaurant>> getAll() {
