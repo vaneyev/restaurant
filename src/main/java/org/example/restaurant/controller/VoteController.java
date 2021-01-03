@@ -34,6 +34,7 @@ public class VoteController {
             @PathVariable Long restaurantId,
             @PathVariable @DateTimeFormat(iso = DateTimeFormat.ISO.DATE) LocalDate date
     ) {
+        log.info("Getting count of votes by restaurant id and date.");
         return ResponseEntity.ok(voteRepository.countByRestaurantIdAndDate(restaurantId, date));
     }
 
@@ -43,6 +44,7 @@ public class VoteController {
             @PathVariable Long restaurantId,
             @PathVariable @DateTimeFormat(iso = DateTimeFormat.ISO.DATE) LocalDate date
     ) {
+        log.info("Getting vote status by user {}, restaurant id {}, date {}.", user.getUsername(), restaurantId, date);
         return ResponseEntity.ok(voteRepository.findOne(Example.of(new Vote(user.getId(), restaurantId, date))).isPresent());
     }
 
@@ -55,11 +57,14 @@ public class VoteController {
         if (dateTime.toLocalTime().isBefore(limitTime)) {
             if (oldVote.isPresent()) {
                 voteRepository.delete(oldVote.get());
+                log.info("Vote has been removed for user {}, restaurant id {}, date {}.", user.getUsername(), restaurantId, dateTime);
             } else {
                 voteRepository.save(vote);
+                log.info("Vote has been set for user {}, restaurant id {}, date {}.", user.getUsername(), restaurantId, dateTime);
             }
             return ResponseEntity.noContent().build();
         }
+        log.info("Vote has not been set because current time {} is after {}", dateTime.toLocalTime(), limitTime);
         return ResponseEntity.badRequest().body("Too late.");
     }
 }

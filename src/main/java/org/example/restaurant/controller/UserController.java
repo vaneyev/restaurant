@@ -17,6 +17,7 @@ public class UserController {
 
     @GetMapping
     public ResponseEntity<User> getProfile(@AuthenticationPrincipal JpaUserDetails user) {
+        log.info("Getting user details of {}", user.getUsername());
         return ResponseEntity.ok(new User(user.getId(), user.getUsername(), user.isAdmin()));
     }
 }

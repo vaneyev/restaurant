@@ -31,12 +31,21 @@ public class MenuController {
 
     @GetMapping("/dates/{date}")
     public ResponseEntity<List<Menu>> getAllByDate(@PathVariable @DateTimeFormat(iso = DateTimeFormat.ISO.DATE) LocalDate date) {
+        log.info("Get menus by date {}", date);
         return ResponseEntity.ok(menuRepository.findByDate(date));
     }
 
     @GetMapping("/{id}")
     public ResponseEntity<Menu> get(@PathVariable Long id) {
-        return menuRepository.findById(id).map(ResponseEntity::ok).orElseGet(() -> ResponseEntity.notFound().build());
+        return menuRepository.findById(id)
+                .map(menu -> {
+                    log.info("Get menu by id {}", id);
+                    return ResponseEntity.ok(menu);
+                })
+                .orElseGet(() -> {
+                    log.info("Menu with id {} not found", id);
+                    return ResponseEntity.notFound().build();
+                });
     }
 
     @PostMapping
@@ -44,16 +53,20 @@ public class MenuController {
     public ResponseEntity<?> create(@RequestBody @Valid Menu menu, BindingResult bindingResult) {
         menu.setId(null);
         if (menu.getRestaurant() == null || menu.getRestaurant().getId() == null) {
+            log.info("Menu has not been created because restaurant or its id is null.");
             return ResponseEntity.badRequest().body("Restaurant and its id must not be null.");
         }
         if (menuRepository.findFirstByRestaurantIdAndDate(menu.getRestaurant().getId(), menu.getDate()).isPresent()) {
-            return ResponseEntity.badRequest().body("Menu with these restaurant and date is already created.");
+            log.info("The menu has not been created because the menu with these restaurant id {} and date {} is already created.",
+                    menu.getRestaurant().getId(), menu.getDate());
+            return ResponseEntity.badRequest().body("The menu with these restaurant and date is already created.");
         }
         menu.getDishes().forEach(dish -> {
             dish.setId(null);
             validator.validate(dish, bindingResult);
         });
         if (bindingResult.hasErrors()) {
+            log.info("The menu has not been created because there are some errors in dishes.");
             return getDishErrorResponseEntity(bindingResult);
         }
         Menu created = menuRepository.save(menu);
@@ -61,6 +74,7 @@ public class MenuController {
                 .path(REST_URL + "/{id}")
                 .buildAndExpand(created.getId())
                 .toUri();
+        log.info("The menu with id {} has been created", created.getId());
         return ResponseEntity.created(uriOfNewResource).body(created);
     }
 
@@ -68,10 +82,12 @@ public class MenuController {
     @Transactional
     public ResponseEntity<?> update(@RequestBody @Valid Menu menu, BindingResult bindingResult) {
         if (menu.getId() == null) {
+            log.info("The menu has not been updated because menu id must not be null.");
             return ResponseEntity.badRequest().body("Menu id must not be null.");
         }
         Optional<Menu> oldMenu = menuRepository.findById(menu.getId());
         if (oldMenu.isEmpty()) {
+            log.info("The menu with id {} is not found.", menu.getId());
             return getMenuErrorResponseEntity(menu.getId());
         }
         menu.setRestaurant(oldMenu.get().getRestaurant());
@@ -82,9 +98,11 @@ public class MenuController {
             }
         });
         if (bindingResult.hasErrors()) {
+            log.info("The menu has not been updated because there are some errors in dishes");
             return getDishErrorResponseEntity(bindingResult);
         }
         menuRepository.save(menu);
+        log.info("The menu with id {} has been updated", menu.getId());
         return ResponseEntity.noContent().build();
     }
 
@@ -92,14 +110,16 @@ public class MenuController {
     @Transactional
     public ResponseEntity<?> delete(@PathVariable Long id) {
         if (menuRepository.findById(id).isEmpty()) {
+            log.info("The menu with id {} is not found.", id);
             return getMenuErrorResponseEntity(id);
         }
         menuRepository.deleteById(id);
+        log.info("The menu with id {} has been deleted.", id);
         return ResponseEntity.noContent().build();
     }
 
     private ResponseEntity<String> getMenuErrorResponseEntity(Long id) {
-        return ResponseEntity.badRequest().body(String.format("Menu with id %d not found.", id));
+        return ResponseEntity.badRequest().body(String.format("Menu with id %d is not found.", id));
     }
 
     private ResponseEntity<String> getDishErrorResponseEntity(BindingResult bindingResult) {
