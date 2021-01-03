@@ -1,46 +1,26 @@
 package org.example.restaurant;
 
-import com.fasterxml.jackson.databind.ObjectMapper;
-import org.example.restaurant.model.Menu;
 import org.example.restaurant.model.Vote;
-import org.example.restaurant.repository.MenuRepository;
 import org.example.restaurant.repository.VoteRepository;
 import org.example.restaurant.service.DateTimeService;
 import org.junit.jupiter.api.Test;
-import org.mockito.internal.matchers.apachecommons.ReflectionEquals;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.boot.test.autoconfigure.web.servlet.AutoConfigureMockMvc;
-import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.data.domain.Example;
 import org.springframework.http.MediaType;
-import org.springframework.test.web.servlet.MockMvc;
-import org.springframework.test.web.servlet.MvcResult;
-import org.springframework.transaction.annotation.Transactional;
 
-import java.time.*;
+import java.time.LocalDateTime;
 import java.util.Optional;
 
-import static org.junit.jupiter.api.Assertions.*;
+import static org.junit.jupiter.api.Assertions.assertFalse;
+import static org.junit.jupiter.api.Assertions.assertTrue;
 import static org.springframework.security.test.web.servlet.request.SecurityMockMvcRequestPostProcessors.httpBasic;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.get;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.put;
 import static org.springframework.test.web.servlet.result.MockMvcResultHandlers.print;
+import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.content;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
 
-@SpringBootTest
-@Transactional
-@AutoConfigureMockMvc
-class RestaurantApplicationTests {
-    private final ObjectMapper mapper = new ObjectMapper();
-    private final LocalDateTime early = LocalDateTime.of(2020, 12, 25, 10, 0);
-    private final LocalDateTime late = LocalDateTime.of(2020, 12, 25, 12, 0);
-
-    @Autowired
-    private MockMvc mockMvc;
-
-    @Autowired
-    private MenuRepository menuRepository;
-
+class VoteControllerTests extends AbstractControllerTest {
     @Autowired
     private VoteRepository voteRepository;
 
@@ -48,7 +28,7 @@ class RestaurantApplicationTests {
     private DateTimeService dateTimeService;
 
     @Test
-    void addVote() throws Exception {
+    void add() throws Exception {
         dateTimeService.setCustom(early);
         mockMvc.perform(
                 put("/votes")
@@ -64,7 +44,7 @@ class RestaurantApplicationTests {
     }
 
     @Test
-    void removeVote() throws Exception {
+    void remove() throws Exception {
         dateTimeService.setCustom(early);
         mockMvc.perform(put("/votes")
                 .contentType(MediaType.APPLICATION_JSON)
@@ -79,7 +59,7 @@ class RestaurantApplicationTests {
     }
 
     @Test
-    void lateVote() throws Exception {
+    void late() throws Exception {
         dateTimeService.setCustom(late);
         mockMvc.perform(put("/votes")
                 .contentType(MediaType.APPLICATION_JSON)
@@ -91,20 +71,29 @@ class RestaurantApplicationTests {
     }
 
     @Test
-    void getMenu() throws Exception {
-        Menu expectedMenu = menuRepository.findById(1L).orElse(null);
-        assertNotNull(expectedMenu);
-        MvcResult result = mockMvc.perform(get("/menus/1")
+    void getPresent() throws Exception {
+        mockMvc.perform(get("/votes/restaurants/1/dates/2020-12-25")
                 .with(httpBasic("User", "pass")))
                 .andDo(print())
                 .andExpect(status().isOk())
-                .andReturn();
-        String content = result.getResponse().getContentAsString();
-        Menu actualMenu = mapper.readValue(content, Menu.class);
-        assertTrue(new ReflectionEquals(expectedMenu, "dishes").matches(actualMenu));
-        assertEquals(expectedMenu.getDishes().size(), actualMenu.getDishes().size());
-        for (int i = 0; i < expectedMenu.getDishes().size(); i++) {
-            assertTrue(new ReflectionEquals(expectedMenu.getDishes().get(i)).matches(actualMenu.getDishes().get(i)));
-        }
+                .andExpect(content().string("true"));
+    }
+
+    @Test
+    void getAbsent() throws Exception {
+        mockMvc.perform(get("/votes/restaurants/1/dates/2020-12-26")
+                .with(httpBasic("User", "pass")))
+                .andDo(print())
+                .andExpect(status().isOk())
+                .andExpect(content().string("false"));
+    }
+
+    @Test
+    void getCount() throws Exception {
+        mockMvc.perform(get("/votes/count/restaurants/1/dates/2020-12-25")
+                .with(httpBasic("User", "pass")))
+                .andDo(print())
+                .andExpect(status().isOk())
+                .andExpect(content().string("2"));
     }
 }

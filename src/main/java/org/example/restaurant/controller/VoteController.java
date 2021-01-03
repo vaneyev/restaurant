@@ -34,7 +34,7 @@ public class VoteController {
             @PathVariable Long restaurantId,
             @PathVariable @DateTimeFormat(iso = DateTimeFormat.ISO.DATE) LocalDate date
     ) {
-        log.info("Getting count of votes by restaurant id and date.");
+        log.info("Getting count of votes by restaurant id {} and date {}.", restaurantId, date);
         return ResponseEntity.ok(voteRepository.countByRestaurantIdAndDate(restaurantId, date));
     }
 
