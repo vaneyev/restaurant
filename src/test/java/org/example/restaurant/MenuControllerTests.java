@@ -19,7 +19,7 @@ import static org.springframework.test.web.servlet.request.MockMvcRequestBuilder
 import static org.springframework.test.web.servlet.result.MockMvcResultHandlers.print;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
 
-class MenuControllerTests extends AbstractControllerTest {
+class MenuControllerTests extends AbstractControllerTests {
 
     protected final Menu menu1 = new Menu(1L, restaurant1, LocalDate.of(2020, 12, 25));
     protected final Menu menu3 = new Menu(3L, restaurant2, LocalDate.of(2020, 12, 25));

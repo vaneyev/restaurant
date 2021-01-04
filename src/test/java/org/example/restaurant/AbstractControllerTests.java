@@ -18,7 +18,7 @@ import static org.springframework.security.test.web.servlet.request.SecurityMock
 @Transactional
 @AutoConfigureMockMvc
 @Sql({"/schema.sql", "/data.sql"})
-public abstract class AbstractControllerTest {
+public abstract class AbstractControllerTests {
     protected final RequestPostProcessor adminAuth = httpBasic("Admin", "pass");
     protected final RequestPostProcessor userAuth = httpBasic("User", "pass");
     protected final Restaurant restaurant1 = new Restaurant(1L, "First");
