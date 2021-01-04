@@ -21,16 +21,16 @@ import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.
 
 class MenuControllerTests extends AbstractControllerTests {
 
-    protected final Menu menu1 = new Menu(1L, restaurant1, LocalDate.of(2020, 12, 25));
-    protected final Menu menu3 = new Menu(3L, restaurant2, LocalDate.of(2020, 12, 25));
-    protected final Menu createdMenu = new Menu(4L, restaurant1, LocalDate.of(2020, 12, 27));
-    protected final Menu updatedMenu = new Menu(1L, restaurant1, LocalDate.of(2020, 12, 25));
-    protected final Dish dish1 = new Dish(1L, menu1, "Fish", 10);
-    protected final Dish dish2 = new Dish(2L, menu1, "Potato", 2);
-    protected final Dish dish4 = new Dish(4L, menu3, "Beacon", 15);
-    protected final Dish createdDish = new Dish(5L, createdMenu, "Oranges", 7);
-    protected final Dish updatedDish = new Dish(1L, updatedMenu, "Fish", 9);
-    protected final Dish newDish = new Dish(5L, updatedMenu, "Oranges", 7);
+    private final Menu menu1 = new Menu(1L, restaurant1, LocalDate.of(2020, 12, 25));
+    private final Menu menu3 = new Menu(3L, restaurant2, LocalDate.of(2020, 12, 25));
+    private final Menu createdMenu = new Menu(4L, restaurant1, LocalDate.of(2020, 12, 27));
+    private final Menu updatedMenu = new Menu(1L, restaurant1, LocalDate.of(2020, 12, 25));
+    private final Dish dish1 = new Dish(1L, menu1, "Fish", 10);
+    private final Dish dish2 = new Dish(2L, menu1, "Potato", 2);
+    private final Dish dish4 = new Dish(4L, menu3, "Beacon", 15);
+    private final Dish createdDish = new Dish(5L, createdMenu, "Oranges", 7);
+    private final Dish updatedDish = new Dish(1L, updatedMenu, "Fish", 9);
+    private final Dish newDish = new Dish(5L, updatedMenu, "Oranges", 7);
 
     {
         menu1.setDishes(List.of(dish1, dish2));
@@ -130,10 +130,9 @@ class MenuControllerTests extends AbstractControllerTests {
     @Test
     void deleteOneUnauthorized() throws Exception {
         mockMvc.perform(delete("/menus/{menu}", menu1.getId())
-                .with(adminAuth))
+                .with(userAuth))
                 .andDo(print())
-                .andExpect(status().isNoContent());
-        assertTrue(menuRepository.findById(menu1.getId()).isEmpty());
+                .andExpect(status().isForbidden());
     }
 
     private void assertMenuEquals(Menu expected, Menu actual) {
