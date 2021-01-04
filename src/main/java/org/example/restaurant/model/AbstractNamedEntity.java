@@ -1,6 +1,5 @@
 package org.example.restaurant.model;
 
-import lombok.Data;
 import lombok.Getter;
 import lombok.Setter;
 
