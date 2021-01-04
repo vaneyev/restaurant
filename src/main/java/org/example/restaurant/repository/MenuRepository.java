@@ -14,5 +14,9 @@ public interface MenuRepository extends JpaRepository<Menu, Long> {
     @Query("select m from Menu m where m.date=:date")
     List<Menu> findByDate(LocalDate date);
 
+    @EntityGraph(attributePaths = {"dishes", "restaurant"}, type = EntityGraph.EntityGraphType.LOAD)
+    @Query("select m from Menu m where m.id=:id")
+    Optional<Menu> getById(Long id);
+
     Optional<Menu> findFirstByRestaurantIdAndDate(Long restaurantId, LocalDate date);
 }

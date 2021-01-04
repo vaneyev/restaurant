@@ -37,7 +37,7 @@ public class MenuController {
 
     @GetMapping("/{id}")
     public ResponseEntity<Menu> get(@PathVariable Long id) {
-        return menuRepository.findById(id)
+        return menuRepository.getById(id)
                 .map(menu -> {
                     log.info("Get menu by id {}", id);
                     return ResponseEntity.ok(menu);
@@ -85,7 +85,7 @@ public class MenuController {
             log.info("The menu has not been updated because menu id must not be null.");
             return ResponseEntity.badRequest().body("Menu id must not be null.");
         }
-        Optional<Menu> oldMenu = menuRepository.findById(menu.getId());
+        Optional<Menu> oldMenu = menuRepository.getById(menu.getId());
         if (oldMenu.isEmpty()) {
             log.info("The menu with id {} is not found.", menu.getId());
             return getMenuErrorResponseEntity(menu.getId());

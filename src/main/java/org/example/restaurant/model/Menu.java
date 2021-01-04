@@ -6,6 +6,7 @@ import com.fasterxml.jackson.databind.annotation.JsonSerialize;
 import com.fasterxml.jackson.datatype.jsr310.deser.LocalDateDeserializer;
 import com.fasterxml.jackson.datatype.jsr310.ser.LocalDateSerializer;
 import lombok.Getter;
+import lombok.NoArgsConstructor;
 import lombok.Setter;
 import org.hibernate.annotations.Fetch;
 import org.hibernate.annotations.FetchMode;
@@ -19,6 +20,7 @@ import java.util.List;
 @Table(name = "menus", schema = "public")
 @Getter
 @Setter
+@NoArgsConstructor
 public class Menu extends AbstractBaseEntity {
 
     @ManyToOne
@@ -35,4 +37,10 @@ public class Menu extends AbstractBaseEntity {
     @JsonManagedReference
     @Fetch(FetchMode.SUBSELECT)
     private List<Dish> dishes;
+
+    public Menu(Long id, Restaurant restaurant, LocalDate date) {
+        this.setId(id);
+        this.restaurant = restaurant;
+        this.date = date;
+    }
 }

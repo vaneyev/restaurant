@@ -8,12 +8,10 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.domain.Example;
 import org.springframework.http.MediaType;
 
-import java.time.LocalDateTime;
 import java.util.Optional;
 
 import static org.junit.jupiter.api.Assertions.assertFalse;
 import static org.junit.jupiter.api.Assertions.assertTrue;
-import static org.springframework.security.test.web.servlet.request.SecurityMockMvcRequestPostProcessors.httpBasic;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.get;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.put;
 import static org.springframework.test.web.servlet.result.MockMvcResultHandlers.print;
@@ -34,7 +32,7 @@ class VoteControllerTests extends AbstractControllerTest {
                 put("/votes")
                         .contentType(MediaType.APPLICATION_JSON)
                         .content(mapper.writeValueAsString(2L))
-                        .with(httpBasic("User", "pass")))
+                        .with(userAuth))
                 .andDo(print())
                 .andExpect(status().isNoContent());
         dateTimeService.setSystem();
@@ -49,7 +47,7 @@ class VoteControllerTests extends AbstractControllerTest {
         mockMvc.perform(put("/votes")
                 .contentType(MediaType.APPLICATION_JSON)
                 .content(mapper.writeValueAsString(1L))
-                .with(httpBasic("User", "pass")))
+                .with(userAuth))
                 .andDo(print())
                 .andExpect(status().isNoContent());
         dateTimeService.setSystem();
@@ -64,7 +62,7 @@ class VoteControllerTests extends AbstractControllerTest {
         mockMvc.perform(put("/votes")
                 .contentType(MediaType.APPLICATION_JSON)
                 .content(mapper.writeValueAsString(1L))
-                .with(httpBasic("User", "pass")))
+                .with(userAuth))
                 .andDo(print())
                 .andExpect(status().isBadRequest());
         dateTimeService.setSystem();
@@ -72,8 +70,8 @@ class VoteControllerTests extends AbstractControllerTest {
 
     @Test
     void getPresent() throws Exception {
-        mockMvc.perform(get("/votes/restaurants/1/dates/2020-12-25")
-                .with(httpBasic("User", "pass")))
+        mockMvc.perform(get("/votes/restaurants/{restaurant}/dates/{date}", 1L, early.toLocalDate())
+                .with(userAuth))
                 .andDo(print())
                 .andExpect(status().isOk())
                 .andExpect(content().string("true"));
@@ -81,8 +79,8 @@ class VoteControllerTests extends AbstractControllerTest {
 
     @Test
     void getAbsent() throws Exception {
-        mockMvc.perform(get("/votes/restaurants/1/dates/2020-12-26")
-                .with(httpBasic("User", "pass")))
+        mockMvc.perform(get("/votes/restaurants/{restaurant}/dates/{date}", 1L, early.plusDays(1).toLocalDate())
+                .with(userAuth))
                 .andDo(print())
                 .andExpect(status().isOk())
                 .andExpect(content().string("false"));
@@ -90,8 +88,8 @@ class VoteControllerTests extends AbstractControllerTest {
 
     @Test
     void getCount() throws Exception {
-        mockMvc.perform(get("/votes/count/restaurants/1/dates/2020-12-25")
-                .with(httpBasic("User", "pass")))
+        mockMvc.perform(get("/votes/count/restaurants/{restaurant}/dates/{date}", 1L, early.toLocalDate())
+                .with(userAuth))
                 .andDo(print())
                 .andExpect(status().isOk())
                 .andExpect(content().string("2"));

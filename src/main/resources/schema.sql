@@ -1,3 +1,9 @@
+drop table if exists DISHES;
+drop table if exists VOTES;
+drop table if exists MENUS;
+drop table if exists RESTAURANTS;
+drop table if exists USERS;
+
 create table RESTAURANTS
 (
     ID   IDENTITY primary key,
