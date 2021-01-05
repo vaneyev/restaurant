@@ -2,7 +2,7 @@ package org.example.restaurant.controller;
 
 import lombok.extern.slf4j.Slf4j;
 import org.example.restaurant.model.User;
-import org.example.restaurant.service.JpaUserDetails;
+import org.example.restaurant.model.security.JpaUserDetails;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.core.annotation.AuthenticationPrincipal;
 import org.springframework.web.bind.annotation.GetMapping;

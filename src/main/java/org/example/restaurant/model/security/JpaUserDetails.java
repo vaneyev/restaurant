@@ -1,4 +1,4 @@
-package org.example.restaurant.service;
+package org.example.restaurant.model.security;
 
 import org.example.restaurant.model.User;
 import org.springframework.security.core.GrantedAuthority;

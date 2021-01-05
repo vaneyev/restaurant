@@ -1,7 +1,8 @@
-package org.example.restaurant.service;
+package org.example.restaurant.service.security;
 
 import lombok.RequiredArgsConstructor;
 import org.example.restaurant.model.User;
+import org.example.restaurant.model.security.JpaUserDetails;
 import org.example.restaurant.repository.UserRepository;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.cache.annotation.Cacheable;

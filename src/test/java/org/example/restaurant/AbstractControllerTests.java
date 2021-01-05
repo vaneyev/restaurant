@@ -26,7 +26,6 @@ public abstract class AbstractControllerTests {
     protected final LocalDateTime early = LocalDateTime.of(2020, 12, 25, 10, 0);
     protected final LocalDateTime late = LocalDateTime.of(2020, 12, 25, 12, 0);
 
-
     protected final ObjectMapper mapper = new ObjectMapper();
 
     @Autowired

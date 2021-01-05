@@ -5,7 +5,7 @@ import lombok.extern.slf4j.Slf4j;
 import org.example.restaurant.model.Vote;
 import org.example.restaurant.repository.VoteRepository;
 import org.example.restaurant.service.DateTimeService;
-import org.example.restaurant.service.JpaUserDetails;
+import org.example.restaurant.model.security.JpaUserDetails;
 import org.springframework.data.domain.Example;
 import org.springframework.format.annotation.DateTimeFormat;
 import org.springframework.http.ResponseEntity;
