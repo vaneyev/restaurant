@@ -57,8 +57,6 @@ public class VoteController {
         Optional<Vote> oldVote = voteRepository.findOne(Example.of(vote));
         if (dateTime.toLocalTime().isBefore(limitTime)) {
             if (oldVote.isPresent()) {
-//                voteRepository.delete(oldVote.get());
-//                log.info("Vote has been removed for user {}, restaurant id {}, date {}.", user.getUsername(), restaurantId, dateTime);
                 oldVote.get().setRestaurantId(restaurantId);
                 voteRepository.save(oldVote.get());
                 log.info("Vote has been changed for user {}, restaurant id {}, date {}.", user.getUsername(), restaurantId, dateTime);
