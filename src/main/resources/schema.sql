@@ -64,6 +64,6 @@ create table VOTES
         foreign key (USER_ID) references USERS (ID)
 );
 
-create unique index VOTES_USER_ID_RESTAURANT_ID_DATE_UINDEX
-    on VOTES (USER_ID, RESTAURANT_ID, DATE);
+create unique index VOTES_USER_ID_DATE_UINDEX
+    on VOTES (USER_ID, DATE);
 
