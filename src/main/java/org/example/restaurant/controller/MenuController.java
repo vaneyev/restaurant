@@ -5,6 +5,7 @@ import lombok.extern.slf4j.Slf4j;
 import org.example.restaurant.model.Dish;
 import org.example.restaurant.model.Menu;
 import org.example.restaurant.repository.MenuRepository;
+import org.springframework.cache.annotation.Cacheable;
 import org.springframework.format.annotation.DateTimeFormat;
 import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
@@ -32,6 +33,7 @@ public class MenuController {
     private final SmartValidator validator;
 
     @GetMapping("/dates/{date}")
+    @Cacheable("menus")
     public ResponseEntity<List<Menu>> getAllByDate(@PathVariable @DateTimeFormat(iso = DateTimeFormat.ISO.DATE) LocalDate date) {
         log.info("Get menus by date {}", date);
         return ResponseEntity.ok(menuRepository.findByDate(date));
