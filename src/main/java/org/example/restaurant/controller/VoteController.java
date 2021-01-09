@@ -8,6 +8,7 @@ import org.example.restaurant.repository.VoteRepository;
 import org.example.restaurant.service.DateTimeService;
 import org.springframework.data.domain.Example;
 import org.springframework.format.annotation.DateTimeFormat;
+import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.core.annotation.AuthenticationPrincipal;
 import org.springframework.transaction.annotation.Transactional;
@@ -49,7 +50,7 @@ public class VoteController {
                 .orElse(ResponseEntity.notFound().build());
     }
 
-    @PutMapping
+    @PutMapping(consumes = MediaType.APPLICATION_JSON_VALUE)
     @Transactional
     public ResponseEntity<?> vote(@AuthenticationPrincipal JpaUserDetails user, @RequestBody Long restaurantId) {
         LocalDateTime dateTime = dateTimeService.getLocalDateTime();

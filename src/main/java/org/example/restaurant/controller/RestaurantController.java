@@ -4,6 +4,7 @@ import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.example.restaurant.model.Restaurant;
 import org.example.restaurant.repository.RestaurantRepository;
+import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
 import org.springframework.transaction.annotation.Transactional;
 import org.springframework.web.bind.annotation.*;
@@ -34,7 +35,7 @@ public class RestaurantController {
         return restaurantRepository.findById(id).map(ResponseEntity::ok).orElseGet(() -> ResponseEntity.notFound().build());
     }
 
-    @PostMapping
+    @PostMapping(consumes = MediaType.APPLICATION_JSON_VALUE)
     public ResponseEntity<Restaurant> create(@RequestBody @Valid Restaurant restaurant) {
         restaurant.setId(null);
         Restaurant created = restaurantRepository.save(restaurant);
@@ -46,35 +47,31 @@ public class RestaurantController {
         return ResponseEntity.created(uriOfNewResource).body(created);
     }
 
-    @PutMapping
+    @PutMapping(value = "/{id}", consumes = MediaType.APPLICATION_JSON_VALUE)
     @Transactional
-    public ResponseEntity<String> update(@RequestBody @Valid Restaurant restaurant) {
-        if (restaurant.getId() == null) {
-            log.info("The restaurant has not been updated because id must not be null.");
-            return ResponseEntity.badRequest().body("Restaurant id must not be null.");
-        }
-        if (restaurantRepository.findById(restaurant.getId()).isEmpty()) {
-            log.info("The restaurant with id {} is not found.", restaurant.getId());
-            return getResponseEntity(restaurant.getId());
-        }
-        restaurantRepository.save(restaurant);
-        log.info("The restaurant with id {} has been created.", restaurant.getId());
-        return ResponseEntity.noContent().build();
+    public ResponseEntity<String> update(@PathVariable long id, @RequestBody @Valid Restaurant restaurant) {
+        return getResponseEntity(id, () -> {
+            restaurant.setId(id);
+            restaurantRepository.save(restaurant);
+            log.info("The restaurant with id {} has been created.", id);
+        });
     }
 
     @DeleteMapping("/{id}")
     @Transactional
-    public ResponseEntity<String> delete(@PathVariable Long id) {
-        if (restaurantRepository.findById(id).isEmpty()) {
-            log.info("The restaurant with id {} is not found.", id);
-            return getResponseEntity(id);
-        }
-        restaurantRepository.deleteById(id);
-        log.info("The restaurant with id {} has been deleted.", id);
-        return ResponseEntity.noContent().build();
+    public ResponseEntity<String> delete(@PathVariable long id) {
+        return getResponseEntity(id, () -> {
+            restaurantRepository.deleteById(id);
+            log.info("The restaurant with id {} has been deleted.", id);
+        });
     }
 
-    private ResponseEntity<String> getResponseEntity(Long id) {
-        return ResponseEntity.badRequest().body(String.format("The restaurant with id %d not found.", id));
+    private ResponseEntity<String> getResponseEntity(long id, Runnable runnable) {
+        if (restaurantRepository.findById(id).isEmpty()) {
+            log.info("The restaurant with id {} is not found.", id);
+            return ResponseEntity.badRequest().body(String.format("The restaurant with id %d is not found.", id));
+        }
+        runnable.run();
+        return ResponseEntity.noContent().build();
     }
 }

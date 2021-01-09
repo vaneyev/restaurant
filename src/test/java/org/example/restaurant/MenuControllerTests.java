@@ -97,9 +97,9 @@ class MenuControllerTests extends AbstractControllerTests {
 
     @Test
     void update() throws Exception {
-        mockMvc.perform(put("/menus")
+        mockMvc.perform(put("/menus/{menu}", updatedMenu.getId())
                 .contentType(MediaType.APPLICATION_JSON)
-                .content(mapper.writeValueAsString(updatedMenu))
+                .content(mapper.writeValueAsString(updatedMenu.getDishes()))
                 .with(adminAuth))
                 .andDo(print())
                 .andExpect(status().isNoContent());
@@ -110,9 +110,9 @@ class MenuControllerTests extends AbstractControllerTests {
 
     @Test
     void updateUnauthorized() throws Exception {
-        mockMvc.perform(put("/menus")
+        mockMvc.perform(put("/menus/{menu}", updatedMenu.getId())
                 .contentType(MediaType.APPLICATION_JSON)
-                .content(mapper.writeValueAsString(updatedMenu))
+                .content(mapper.writeValueAsString(updatedMenu.getDishes()))
                 .with(userAuth))
                 .andDo(print())
                 .andExpect(status().isForbidden());

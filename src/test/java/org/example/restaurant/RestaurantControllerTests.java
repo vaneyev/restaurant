@@ -79,7 +79,7 @@ public class RestaurantControllerTests extends AbstractControllerTests {
 
     @Test
     void update() throws Exception {
-        mockMvc.perform(put("/restaurants")
+        mockMvc.perform(put("/restaurants/{restaurant}", updatedRestaurant.getId())
                 .contentType(MediaType.APPLICATION_JSON)
                 .content(mapper.writeValueAsString(updatedRestaurant))
                 .with(adminAuth))
@@ -92,7 +92,7 @@ public class RestaurantControllerTests extends AbstractControllerTests {
 
     @Test
     void updateUnauthorized() throws Exception {
-        mockMvc.perform(put("/restaurants")
+        mockMvc.perform(put("/restaurants/{restaurant}", updatedRestaurant.getId())
                 .contentType(MediaType.APPLICATION_JSON)
                 .content(mapper.writeValueAsString(updatedRestaurant))
                 .with(userAuth))
