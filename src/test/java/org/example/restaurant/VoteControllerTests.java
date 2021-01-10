@@ -7,7 +7,6 @@ import org.junit.jupiter.api.Test;
 import org.mockito.internal.matchers.apachecommons.ReflectionEquals;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.domain.Example;
-import org.springframework.http.MediaType;
 
 import java.util.Optional;
 
@@ -33,9 +32,7 @@ class VoteControllerTests extends AbstractControllerTests {
     void add() throws Exception {
         dateTimeService.setCustom(early.plusDays(1));
         mockMvc.perform(
-                put("/votes")
-                        .contentType(MediaType.APPLICATION_JSON)
-                        .content(mapper.writeValueAsString(1L))
+                put("/votes/restaurants/{restaurantId}", 1L)
                         .with(userAuth))
                 .andDo(print())
                 .andExpect(status().isNoContent());
@@ -50,9 +47,7 @@ class VoteControllerTests extends AbstractControllerTests {
     void change() throws Exception {
         dateTimeService.setCustom(early);
         mockMvc.perform(
-                put("/votes")
-                        .contentType(MediaType.APPLICATION_JSON)
-                        .content(mapper.writeValueAsString(1L))
+                put("/votes/restaurants/{restaurantId}", 1L)
                         .with(userAuth))
                 .andDo(print())
                 .andExpect(status().isNoContent());
@@ -66,10 +61,9 @@ class VoteControllerTests extends AbstractControllerTests {
     @Test
     void late() throws Exception {
         dateTimeService.setCustom(late);
-        mockMvc.perform(put("/votes")
-                .contentType(MediaType.APPLICATION_JSON)
-                .content(mapper.writeValueAsString(1L))
-                .with(userAuth))
+        mockMvc.perform(
+                put("/votes/restaurants/{restaurantId}", 1L)
+                        .with(userAuth))
                 .andDo(print())
                 .andExpect(status().isBadRequest());
         dateTimeService.setSystem();
@@ -78,10 +72,9 @@ class VoteControllerTests extends AbstractControllerTests {
     @Test
     void remove() throws Exception {
         dateTimeService.setCustom(early);
-        mockMvc.perform(delete("/votes")
-                .contentType(MediaType.APPLICATION_JSON)
-                .content(mapper.writeValueAsString(1L))
-                .with(userAuth))
+        mockMvc.perform(
+                delete("/votes")
+                        .with(userAuth))
                 .andDo(print())
                 .andExpect(status().isNoContent());
         dateTimeService.setSystem();
@@ -93,10 +86,9 @@ class VoteControllerTests extends AbstractControllerTests {
     @Test
     void lateRemove() throws Exception {
         dateTimeService.setCustom(late);
-        mockMvc.perform(delete("/votes")
-                .contentType(MediaType.APPLICATION_JSON)
-                .content(mapper.writeValueAsString(1L))
-                .with(userAuth))
+        mockMvc.perform(
+                delete("/votes")
+                        .with(userAuth))
                 .andDo(print())
                 .andExpect(status().isBadRequest());
         dateTimeService.setSystem();

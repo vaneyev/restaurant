@@ -6,9 +6,9 @@ import org.example.restaurant.model.Vote;
 import org.example.restaurant.model.security.JpaUserDetails;
 import org.example.restaurant.repository.VoteRepository;
 import org.example.restaurant.service.DateTimeService;
+import org.example.restaurant.util.TriConsumer;
 import org.springframework.data.domain.Example;
 import org.springframework.format.annotation.DateTimeFormat;
-import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.core.annotation.AuthenticationPrincipal;
 import org.springframework.transaction.annotation.Transactional;
@@ -50,42 +50,52 @@ public class VoteController {
                 .orElse(ResponseEntity.notFound().build());
     }
 
-    @PutMapping(consumes = MediaType.APPLICATION_JSON_VALUE)
+    @PutMapping("/restaurants/{restaurantId}")
     @Transactional
-    public ResponseEntity<?> vote(@AuthenticationPrincipal JpaUserDetails user, @RequestBody Long restaurantId) {
-        LocalDateTime dateTime = dateTimeService.getLocalDateTime();
-        Vote vote = new Vote(user.getId(), dateTime.toLocalDate());
-        Optional<Vote> oldVote = voteRepository.findOne(Example.of(vote));
-        if (dateTime.toLocalTime().isBefore(limitTime)) {
-            if (oldVote.isPresent()) {
-                oldVote.get().setRestaurantId(restaurantId);
-                voteRepository.save(oldVote.get());
-                log.info("Vote has been changed for user {}, restaurant id {}, date {}.", user.getUsername(), restaurantId, dateTime);
-            } else {
-                vote.setRestaurantId(restaurantId);
-                voteRepository.save(vote);
-                log.info("Vote has been set for user {}, restaurant id {}, date {}.", user.getUsername(), restaurantId, dateTime);
-            }
-            return ResponseEntity.noContent().build();
-        }
-        log.info("Vote has not been set because current time {} is after {}", dateTime.toLocalTime(), limitTime);
-        return ResponseEntity.badRequest().body("Too late.");
+    public ResponseEntity<?> vote(@AuthenticationPrincipal JpaUserDetails user, @PathVariable long restaurantId) {
+        return getVoteResponseEntity(
+                user,
+                (oldVote, vote, dateTime) -> {
+                    if (oldVote.isPresent()) {
+                        oldVote.get().setRestaurantId(restaurantId);
+                        voteRepository.save(oldVote.get());
+                        log.info("Vote has been changed for user {}, restaurant id {}, date {}.", user.getUsername(), restaurantId, dateTime);
+                    } else {
+                        vote.setRestaurantId(restaurantId);
+                        voteRepository.save(vote);
+                        log.info("Vote has been set for user {}, restaurant id {}, date {}.", user.getUsername(), restaurantId, dateTime);
+                    }
+                },
+                "Vote has not been set because current time {} is after {}");
     }
 
     @Transactional
     @DeleteMapping
     public ResponseEntity<?> delete(@AuthenticationPrincipal JpaUserDetails user) {
+        return getVoteResponseEntity(
+                user,
+                (oldVote, vote, dateTime) -> {
+                    if (oldVote.isPresent()) {
+                        voteRepository.delete(oldVote.get());
+                        log.info("Vote has been removed for user {}, date {}.", user.getUsername(), dateTime);
+                    }
+                },
+                "Vote has not been removed because current time {} is after {}");
+    }
+
+    private ResponseEntity<?> getVoteResponseEntity(
+            JpaUserDetails user,
+            TriConsumer<Optional<Vote>, Vote, LocalDateTime> consumer,
+            String errorInfo
+    ) {
         LocalDateTime dateTime = dateTimeService.getLocalDateTime();
         Vote vote = new Vote(user.getId(), dateTime.toLocalDate());
         Optional<Vote> oldVote = voteRepository.findOne(Example.of(vote));
         if (dateTime.toLocalTime().isBefore(limitTime)) {
-            if (oldVote.isPresent()) {
-                voteRepository.delete(oldVote.get());
-                log.info("Vote has been removed for user {}, date {}.", user.getUsername(), dateTime);
-            }
+            consumer.accept(oldVote, vote, dateTime);
             return ResponseEntity.noContent().build();
         }
-        log.info("Vote has not been removed because current time {} is after {}", dateTime.toLocalTime(), limitTime);
+        log.info(errorInfo, dateTime.toLocalTime(), limitTime);
         return ResponseEntity.badRequest().body("Too late.");
     }
 }
