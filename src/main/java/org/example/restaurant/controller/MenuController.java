@@ -55,10 +55,13 @@ public class MenuController {
     @PostMapping(consumes = MediaType.APPLICATION_JSON_VALUE)
     @Transactional
     public ResponseEntity<?> create(@RequestBody @Valid Menu menu, BindingResult bindingResult) {
+        if (bindingResult.hasErrors()) {
+            return getMenuErrorResponseEntity(bindingResult);
+        }
         menu.setId(null);
-        if (menu.getRestaurant() == null || menu.getRestaurant().getId() == null) {
-            log.info("Menu has not been created because restaurant or its id is null.");
-            return ResponseEntity.badRequest().body("Restaurant and its id must not be null.");
+        if (menu.getRestaurant().getId() == null) {
+            log.info("Menu has not been created because restaurant id is null.");
+            return ResponseEntity.badRequest().body("Restaurant id must not be null.");
         }
         if (menuRepository.findFirstByRestaurantIdAndDate(menu.getRestaurant().getId(), menu.getDate()).isPresent()) {
             log.info("The menu has not been created because the menu with these restaurant id {} and date {} is already created.",
@@ -84,7 +87,10 @@ public class MenuController {
 
     @PutMapping(value = "/{id}", consumes = MediaType.APPLICATION_JSON_VALUE)
     @Transactional
-    public ResponseEntity<?> update(@PathVariable long id, @RequestBody @Valid List<Dish> dishes, BindingResult bindingResult) {
+    public ResponseEntity<?> update(@PathVariable long id, @RequestBody List<Dish> dishes, BindingResult bindingResult) {
+        if (bindingResult.hasErrors()) {
+            return getMenuErrorResponseEntity(bindingResult);
+        }
         Optional<Menu> oldMenu = menuRepository.getById(id);
         if (oldMenu.isEmpty()) {
             return getMenuNotFoundResponseEntity(id);
@@ -123,15 +129,24 @@ public class MenuController {
         return ResponseEntity.badRequest().body(String.format("Menu with id %d is not found.", id));
     }
 
+    private ResponseEntity<String> getMenuErrorResponseEntity(BindingResult bindingResult) {
+        return getErrorResponseEntity(bindingResult, "Menu data is not valid.\n");
+    }
+
     private ResponseEntity<String> getDishErrorResponseEntity(BindingResult bindingResult) {
+        return getErrorResponseEntity(bindingResult, "Dish data is not valid.\n");
+    }
+
+    private ResponseEntity<String> getErrorResponseEntity(BindingResult bindingResult, String message) {
         StringBuilder stringBuilder = new StringBuilder();
-        stringBuilder.append("Dish data is not valid.\n");
+        stringBuilder.append(message);
         bindingResult.getFieldErrors().forEach(fieldError -> {
             stringBuilder.append(fieldError.getField());
             stringBuilder.append(": ");
             stringBuilder.append(fieldError.getDefaultMessage());
             stringBuilder.append("\n");
         });
+        log.info(stringBuilder.toString());
         return ResponseEntity.badRequest().body(stringBuilder.toString());
     }
 }

@@ -20,6 +20,8 @@ import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.
 public class RestaurantControllerTests extends AbstractControllerTests {
     private final Restaurant createdRestaurant = new Restaurant(3L, "New restaurant");
     private final Restaurant updatedRestaurant = new Restaurant(1L, "First and biggest");
+    private final Restaurant notValidRestaurant = new Restaurant(1L, "N");
+    private final Restaurant absentRestaurant = new Restaurant(3L, "Absent restaurant");
 
     @Autowired
     RestaurantRepository restaurantRepository;
@@ -35,6 +37,14 @@ public class RestaurantControllerTests extends AbstractControllerTests {
                 .getContentAsString();
         Restaurant actual = mapper.readValue(result, Restaurant.class);
         assertTrue(new ReflectionEquals(restaurant1).matches(actual));
+    }
+
+    @Test
+    public void getOneNotFound() throws Exception {
+        mockMvc.perform(get("/restaurants/{restaurant}", absentRestaurant.getId())
+                .with(userAuth))
+                .andDo(print())
+                .andExpect(status().isNotFound());
     }
 
     @Test
@@ -78,6 +88,16 @@ public class RestaurantControllerTests extends AbstractControllerTests {
     }
 
     @Test
+    void createNotValid() throws Exception {
+        mockMvc.perform(post("/restaurants")
+                .contentType(MediaType.APPLICATION_JSON)
+                .content(mapper.writeValueAsString(notValidRestaurant))
+                .with(adminAuth))
+                .andDo(print())
+                .andExpect(status().isBadRequest());
+    }
+
+    @Test
     void update() throws Exception {
         mockMvc.perform(put("/restaurants/{restaurant}", updatedRestaurant.getId())
                 .contentType(MediaType.APPLICATION_JSON)
@@ -101,6 +121,26 @@ public class RestaurantControllerTests extends AbstractControllerTests {
     }
 
     @Test
+    void updateNotValid() throws Exception {
+        mockMvc.perform(put("/restaurants/{restaurant}", notValidRestaurant.getId())
+                .contentType(MediaType.APPLICATION_JSON)
+                .content(mapper.writeValueAsString(notValidRestaurant))
+                .with(adminAuth))
+                .andDo(print())
+                .andExpect(status().isBadRequest());
+    }
+
+    @Test
+    void updateNotFound() throws Exception {
+        mockMvc.perform(put("/restaurants/{restaurant}", absentRestaurant.getId())
+                .contentType(MediaType.APPLICATION_JSON)
+                .content(mapper.writeValueAsString(absentRestaurant))
+                .with(adminAuth))
+                .andDo(print())
+                .andExpect(status().isBadRequest());
+    }
+
+    @Test
     void deleteOne() throws Exception {
         mockMvc.perform(delete("/restaurants/{restaurant}", restaurant1.getId())
                 .with(adminAuth))
@@ -115,6 +155,14 @@ public class RestaurantControllerTests extends AbstractControllerTests {
                 .with(userAuth))
                 .andDo(print())
                 .andExpect(status().isForbidden());
+    }
+
+    @Test
+    void deleteOneNotFound() throws Exception {
+        mockMvc.perform(delete("/restaurants/{restaurant}", absentRestaurant.getId())
+                .with(adminAuth))
+                .andDo(print())
+                .andExpect(status().isBadRequest());
     }
 
     private void assertListsOfRestaurantEquals(List<Restaurant> expected, List<Restaurant> actual) {
