@@ -88,9 +88,6 @@ public class MenuController {
     @PutMapping(value = "/{id}", consumes = MediaType.APPLICATION_JSON_VALUE)
     @Transactional
     public ResponseEntity<?> update(@PathVariable long id, @RequestBody List<Dish> dishes, BindingResult bindingResult) {
-        if (bindingResult.hasErrors()) {
-            return getMenuErrorResponseEntity(bindingResult);
-        }
         Optional<Menu> oldMenu = menuRepository.getById(id);
         if (oldMenu.isEmpty()) {
             return getMenuNotFoundResponseEntity(id);
