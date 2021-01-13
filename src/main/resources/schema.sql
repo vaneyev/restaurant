@@ -1,69 +1,67 @@
-drop table if exists DISHES;
-drop table if exists VOTES;
-drop table if exists MENUS;
-drop table if exists RESTAURANTS;
-drop table if exists USERS;
+DROP TABLE IF EXISTS dishes;
+DROP TABLE IF EXISTS votes;
+DROP TABLE IF EXISTS menus;
+DROP TABLE IF EXISTS restaurants;
+DROP TABLE IF EXISTS users;
 
-create table RESTAURANTS
+CREATE TABLE restaurants
 (
-    ID   IDENTITY primary key,
-    NAME VARCHAR not null
+    id   IDENTITY PRIMARY KEY,
+    name VARCHAR NOT NULL
 );
 
-create table USERS
+CREATE TABLE users
 (
-    ID       IDENTITY primary key,
-    NAME     VARCHAR not null,
-    PASSWORD VARCHAR not null,
-    IS_ADMIN BOOLEAN not null
+    id       IDENTITY PRIMARY KEY,
+    name     VARCHAR NOT NULL,
+    password VARCHAR NOT NULL,
+    is_admin BOOLEAN NOT NULL
 );
 
-create unique index USERS_NAME_UINDEX
-    on USERS (NAME);
+CREATE UNIQUE INDEX users_name_uindex
+    ON users (name);
 
-create table MENUS
+CREATE TABLE menus
 (
-    ID            IDENTITY primary key,
-    RESTAURANT_ID BIGINT
-        not null,
-    DATE          DATE
-        not null,
-    constraint MENUS_PK
-        primary key (ID),
-    constraint MENUS_RESTAURANTS_ID_FK
-        foreign key (RESTAURANT_ID) references RESTAURANTS (ID)
-            on delete cascade
+    id            IDENTITY PRIMARY KEY,
+    restaurant_id BIGINT NOT NULL,
+    date          DATE   NOT NULL,
+    CONSTRAINT menus_pk
+        PRIMARY KEY (id),
+    CONSTRAINT menus_restaurants_id_fk
+        FOREIGN KEY (restaurant_id) REFERENCES restaurants (id)
+            ON DELETE CASCADE
 );
 
-create unique index MENUS_RESTAURANT_ID_DATE_UINDEX
-    on MENUS (RESTAURANT_ID, DATE);
+CREATE UNIQUE INDEX menus_restaurant_id_date_uindex
+    ON menus (restaurant_id, date);
 
-create table DISHES
+CREATE TABLE dishes
 (
-    ID      IDENTITY primary key,
-    NAME    VARCHAR not null,
-    MENU_ID BIGINT  not null,
-    PRICE   INT     not null,
-    constraint MENU_ITEMS_PK
-        primary key (ID),
-    constraint MENU_ITEMS_MENUS_ID_FK
-        foreign key (MENU_ID) references MENUS (ID)
-            on delete cascade
+    id      IDENTITY PRIMARY KEY,
+    name    VARCHAR NOT NULL,
+    menu_id BIGINT  NOT NULL,
+    price   INT     NOT NULL,
+    CONSTRAINT menu_items_pk
+        PRIMARY KEY (id),
+    CONSTRAINT menu_items_menus_id_fk
+        FOREIGN KEY (menu_id) REFERENCES menus (id)
+            ON DELETE CASCADE
 );
 
-create table VOTES
+CREATE TABLE votes
 (
-    ID            IDENTITY primary key,
-    USER_ID       BIGINT not null,
-    RESTAURANT_ID BIGINT not null,
-    DATE          DATE   not null,
-    constraint VOTES_RESTAURANTS_ID_FK
-        foreign key (RESTAURANT_ID) references RESTAURANTS (ID)
-            on delete cascade,
-    constraint VOTES_USERS_ID_FK
-        foreign key (USER_ID) references USERS (ID)
+    id            IDENTITY PRIMARY KEY,
+    user_id       BIGINT NOT NULL,
+    restaurant_id BIGINT NOT NULL,
+    date          DATE   NOT NULL,
+    CONSTRAINT votes_restaurants_id_fk
+        FOREIGN KEY (restaurant_id) REFERENCES restaurants (id)
+            ON DELETE CASCADE,
+    CONSTRAINT votes_users_id_fk
+        FOREIGN KEY (user_id) REFERENCES users (id)
 );
 
-create unique index VOTES_USER_ID_DATE_UINDEX
-    on VOTES (USER_ID, DATE);
+CREATE UNIQUE INDEX votes_user_id_date_uindex
+    ON votes (user_id, date);
 
