@@ -10,6 +10,9 @@ CREATE TABLE restaurants
     name VARCHAR NOT NULL
 );
 
+CREATE UNIQUE INDEX restaurants_name_unique
+    ON restaurants (name);
+
 CREATE TABLE users
 (
     id       IDENTITY PRIMARY KEY,
@@ -18,14 +21,14 @@ CREATE TABLE users
     is_admin BOOLEAN NOT NULL
 );
 
-CREATE UNIQUE INDEX users_name_uindex
+CREATE UNIQUE INDEX users_name_unuque
     ON users (name);
 
 CREATE TABLE menus
 (
     id            IDENTITY PRIMARY KEY,
     restaurant_id BIGINT NOT NULL,
-    date          DATE   NOT NULL,
+    menu_date          DATE   NOT NULL,
     CONSTRAINT menus_pk
         PRIMARY KEY (id),
     CONSTRAINT menus_restaurants_id_fk
@@ -33,8 +36,8 @@ CREATE TABLE menus
             ON DELETE CASCADE
 );
 
-CREATE UNIQUE INDEX menus_restaurant_id_date_uindex
-    ON menus (restaurant_id, date);
+CREATE UNIQUE INDEX menus_restaurant_id_date_unique
+    ON menus (restaurant_id, menu_date);
 
 CREATE TABLE dishes
 (
@@ -62,6 +65,6 @@ CREATE TABLE votes
         FOREIGN KEY (user_id) REFERENCES users (id)
 );
 
-CREATE UNIQUE INDEX votes_user_id_date_uindex
+CREATE UNIQUE INDEX votes_user_id_date_unique
     ON votes (user_id, date);
 

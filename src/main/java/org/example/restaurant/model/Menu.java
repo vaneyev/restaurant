@@ -23,7 +23,7 @@ import java.util.List;
 @NoArgsConstructor
 public class Menu extends AbstractBaseEntity {
 
-    @ManyToOne
+    @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "restaurant_id")
     @NotNull
     private Restaurant restaurant;
@@ -31,9 +31,10 @@ public class Menu extends AbstractBaseEntity {
     @JsonDeserialize(using = LocalDateDeserializer.class)
     @JsonSerialize(using = LocalDateSerializer.class)
     @NotNull
+    @Column(name = "menu_date")
     private LocalDate date;
 
-    @OneToMany(mappedBy = "menu", fetch = FetchType.EAGER, cascade = CascadeType.ALL, orphanRemoval = true)
+    @OneToMany(mappedBy = "menu", fetch = FetchType.LAZY, cascade = CascadeType.ALL, orphanRemoval = true)
     @JsonManagedReference
     @Fetch(FetchMode.SUBSELECT)
     private List<Dish> dishes;

@@ -6,7 +6,7 @@ INSERT INTO public.restaurants (id, name)
 VALUES (1, 'First'),
        (2, 'Second');
 
-INSERT INTO public.menus (id, restaurant_id, date)
+INSERT INTO public.menus (id, restaurant_id, menu_date)
 VALUES (1, 1, '2020-12-25'),
        (2, 1, '2020-12-24'),
        (3, 2, '2020-12-25');
