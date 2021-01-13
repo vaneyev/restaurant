@@ -7,6 +7,7 @@ import org.example.restaurant.model.security.JpaUserDetails;
 import org.example.restaurant.repository.VoteRepository;
 import org.example.restaurant.service.DateTimeService;
 import org.springframework.data.domain.Example;
+import org.springframework.data.repository.query.Param;
 import org.springframework.format.annotation.DateTimeFormat;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.core.annotation.AuthenticationPrincipal;
@@ -30,19 +31,19 @@ public class VoteController {
 
     private final DateTimeService dateTimeService;
 
-    @GetMapping("/count/restaurants/{restaurantId}/dates/{date}")
+    @GetMapping("/count/restaurants/{restaurantId}")
     public ResponseEntity<Long> getCount(
             @PathVariable Long restaurantId,
-            @PathVariable @DateTimeFormat(iso = DateTimeFormat.ISO.DATE) LocalDate date
+            @Param("date") @DateTimeFormat(iso = DateTimeFormat.ISO.DATE) LocalDate date
     ) {
         log.info("Getting count of votes by restaurant id {} and date {}.", restaurantId, date);
         return ResponseEntity.ok(voteRepository.countByRestaurantIdAndDate(restaurantId, date));
     }
 
-    @GetMapping("/dates/{date}")
+    @GetMapping
     public ResponseEntity<Vote> get(
             @AuthenticationPrincipal JpaUserDetails user,
-            @PathVariable @DateTimeFormat(iso = DateTimeFormat.ISO.DATE) LocalDate date
+            @Param("date") @DateTimeFormat(iso = DateTimeFormat.ISO.DATE) LocalDate date
     ) {
         log.info("Getting vote status by user {}, date {}.", user.getUsername(), date);
         return voteRepository.findOne(Example.of(new Vote(user.getId(), date)))

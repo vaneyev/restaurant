@@ -96,7 +96,7 @@ class VoteControllerTests extends AbstractControllerTests {
 
     @Test
     void getPresent() throws Exception {
-        String result = mockMvc.perform(get("/votes/dates/{date}", early.toLocalDate())
+        String result = mockMvc.perform(get("/votes?date={date}", early.toLocalDate())
                 .with(userAuth))
                 .andDo(print())
                 .andExpect(status().isOk())
@@ -109,7 +109,7 @@ class VoteControllerTests extends AbstractControllerTests {
 
     @Test
     void getAbsent() throws Exception {
-        mockMvc.perform(get("/votes/dates/{date}", early.plusDays(1).toLocalDate())
+        mockMvc.perform(get("/votes?date={date}", early.plusDays(1).toLocalDate())
                 .with(userAuth))
                 .andDo(print())
                 .andExpect(status().isNotFound());
@@ -117,7 +117,7 @@ class VoteControllerTests extends AbstractControllerTests {
 
     @Test
     void getCount() throws Exception {
-        mockMvc.perform(get("/votes/count/restaurants/{restaurant}/dates/{date}", 1L, early.toLocalDate())
+        mockMvc.perform(get("/votes/count/restaurants/{restaurant}?date={date}", 1L, early.toLocalDate())
                 .with(userAuth))
                 .andDo(print())
                 .andExpect(status().isOk())

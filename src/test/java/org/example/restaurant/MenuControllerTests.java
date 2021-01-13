@@ -73,7 +73,7 @@ class MenuControllerTests extends AbstractControllerTests {
     @Test
     void getAllByDate() throws Exception {
         List<Menu> expected = List.of(menu1, menu3);
-        String result = mockMvc.perform(get("/menus/dates/{date}", early.toLocalDate())
+        String result = mockMvc.perform(get("/menus?date={date}", early.toLocalDate())
                 .with(userAuth))
                 .andDo(print())
                 .andExpect(status().isOk())
