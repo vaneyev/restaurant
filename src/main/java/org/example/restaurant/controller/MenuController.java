@@ -35,9 +35,9 @@ public class MenuController {
 
     @GetMapping
     @Cacheable("menus")
-    public ResponseEntity<List<Menu>> getAllByDate(@Param("date") @DateTimeFormat(iso = DateTimeFormat.ISO.DATE) LocalDate date) {
+    public List<Menu> getAllByDate(@Param("date") @DateTimeFormat(iso = DateTimeFormat.ISO.DATE) LocalDate date) {
         log.info("Get menus by date {}", date);
-        return ResponseEntity.ok(menuRepository.findByDate(date));
+        return menuRepository.findByDate(date);
     }
 
     @GetMapping("/{id}")

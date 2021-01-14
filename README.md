@@ -3,6 +3,10 @@ Voting system backend
 
 ## Vote for a restaurant by its id
 ```shell
+curl -u User:pass -i http://localhost:8080/votes -X POST -H "Content-Type: application/json" --data '1' | less
+```
+## Change vote for a restaurant by its id
+```shell
 curl -u User:pass -i http://localhost:8080/votes/restaurants/1 -X PUT | less
 ```
 ## Get user vote status by day

@@ -7,10 +7,11 @@ import org.junit.jupiter.api.Test;
 import org.mockito.internal.matchers.apachecommons.ReflectionEquals;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.domain.Example;
+import org.springframework.http.MediaType;
 
 import java.util.Optional;
 
-import static org.junit.jupiter.api.Assertions.assertFalse;
+import static org.assertj.core.api.Assertions.assertThat;
 import static org.junit.jupiter.api.Assertions.assertTrue;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.*;
 import static org.springframework.test.web.servlet.result.MockMvcResultHandlers.print;
@@ -20,7 +21,7 @@ import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.
 class VoteControllerTests extends AbstractControllerTests {
     private final Vote vote2 = new Vote(2L, 2L, 2L, early.toLocalDate());
     private final Vote addedVote = new Vote(3L, 2L, 1L, early.plusDays(1).toLocalDate());
-    private final Vote changedVote = new Vote(2L, 2L, 1L, early.toLocalDate());
+    private final Vote changedVote = new Vote(2L, 2L, 2L, early.toLocalDate());
 
     @Autowired
     private VoteRepository voteRepository;
@@ -32,10 +33,29 @@ class VoteControllerTests extends AbstractControllerTests {
     void add() throws Exception {
         dateTimeService.setCustom(early.plusDays(1));
         mockMvc.perform(
-                put("/votes/restaurants/{restaurantId}", 1L)
-                        .with(userAuth))
+                post("/votes")
+                        .with(userAuth)
+                        .contentType(MediaType.APPLICATION_JSON)
+                        .content(mapper.writeValueAsString(1L)))
                 .andDo(print())
-                .andExpect(status().isNoContent());
+                .andExpect(status().isCreated());
+        dateTimeService.setSystem();
+        Vote vote = new Vote(2L, addedVote.getDate());
+        Optional<Vote> actual = voteRepository.findOne(Example.of(vote));
+        assertTrue(actual.isPresent());
+        assertTrue(new ReflectionEquals(addedVote).matches(actual.get()));
+    }
+
+    @Test
+    void addAfter() throws Exception {
+        dateTimeService.setCustom(late.plusDays(1));
+        mockMvc.perform(
+                post("/votes")
+                        .with(userAuth)
+                        .contentType(MediaType.APPLICATION_JSON)
+                        .content(mapper.writeValueAsString(1L)))
+                .andDo(print())
+                .andExpect(status().isCreated());
         dateTimeService.setSystem();
         Vote vote = new Vote(2L, addedVote.getDate());
         Optional<Vote> actual = voteRepository.findOne(Example.of(vote));
@@ -47,7 +67,7 @@ class VoteControllerTests extends AbstractControllerTests {
     void change() throws Exception {
         dateTimeService.setCustom(early);
         mockMvc.perform(
-                put("/votes/restaurants/{restaurantId}", 1L)
+                put("/votes/restaurants/{restaurantId}", 2L)
                         .with(userAuth))
                 .andDo(print())
                 .andExpect(status().isNoContent());
@@ -55,39 +75,14 @@ class VoteControllerTests extends AbstractControllerTests {
         Vote vote = new Vote(2L, early.toLocalDate());
         Optional<Vote> actual = voteRepository.findOne(Example.of(vote));
         assertTrue(actual.isPresent());
-        assertTrue(new ReflectionEquals(changedVote).matches(actual.get()));
+        assertThat(actual.get()).usingRecursiveComparison().isEqualTo(changedVote);
     }
 
     @Test
-    void late() throws Exception {
+    void changeAfter() throws Exception {
         dateTimeService.setCustom(late);
         mockMvc.perform(
                 put("/votes/restaurants/{restaurantId}", 1L)
-                        .with(userAuth))
-                .andDo(print())
-                .andExpect(status().isBadRequest());
-        dateTimeService.setSystem();
-    }
-
-    @Test
-    void remove() throws Exception {
-        dateTimeService.setCustom(early);
-        mockMvc.perform(
-                delete("/votes")
-                        .with(userAuth))
-                .andDo(print())
-                .andExpect(status().isNoContent());
-        dateTimeService.setSystem();
-        Vote vote = new Vote(2L, early.toLocalDate());
-        Optional<Vote> removedVote = voteRepository.findOne(Example.of(vote));
-        assertFalse(removedVote.isPresent());
-    }
-
-    @Test
-    void lateRemove() throws Exception {
-        dateTimeService.setCustom(late);
-        mockMvc.perform(
-                delete("/votes")
                         .with(userAuth))
                 .andDo(print())
                 .andExpect(status().isBadRequest());
