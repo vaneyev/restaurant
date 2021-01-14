@@ -4,7 +4,6 @@ import org.example.restaurant.model.Vote;
 import org.example.restaurant.repository.VoteRepository;
 import org.example.restaurant.service.DateTimeService;
 import org.junit.jupiter.api.Test;
-import org.mockito.internal.matchers.apachecommons.ReflectionEquals;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.domain.Example;
 import org.springframework.http.MediaType;
@@ -43,7 +42,7 @@ class VoteControllerTests extends AbstractControllerTests {
         Vote vote = new Vote(2L, addedVote.getDate());
         Optional<Vote> actual = voteRepository.findOne(Example.of(vote));
         assertTrue(actual.isPresent());
-        assertTrue(new ReflectionEquals(addedVote).matches(actual.get()));
+        assertThat(actual.get()).usingRecursiveComparison().isEqualTo(addedVote);
     }
 
     @Test
@@ -60,7 +59,7 @@ class VoteControllerTests extends AbstractControllerTests {
         Vote vote = new Vote(2L, addedVote.getDate());
         Optional<Vote> actual = voteRepository.findOne(Example.of(vote));
         assertTrue(actual.isPresent());
-        assertTrue(new ReflectionEquals(addedVote).matches(actual.get()));
+        assertThat(actual.get()).usingRecursiveComparison().isEqualTo(addedVote);
     }
 
     @Test
@@ -99,7 +98,7 @@ class VoteControllerTests extends AbstractControllerTests {
                 .getResponse()
                 .getContentAsString();
         Vote actual = mapper.readValue(result, Vote.class);
-        assertTrue(new ReflectionEquals(vote2).matches(actual));
+        assertThat(actual).usingRecursiveComparison().isEqualTo(vote2);
     }
 
     @Test

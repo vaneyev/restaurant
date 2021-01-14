@@ -2,17 +2,16 @@ package org.example.restaurant.controller;
 
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
-import org.example.restaurant.model.Dish;
 import org.example.restaurant.model.Menu;
 import org.example.restaurant.repository.MenuRepository;
 import org.springframework.cache.annotation.Cacheable;
 import org.springframework.data.repository.query.Param;
 import org.springframework.format.annotation.DateTimeFormat;
+import org.springframework.http.HttpStatus;
 import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
 import org.springframework.transaction.annotation.Transactional;
 import org.springframework.validation.BindingResult;
-import org.springframework.validation.SmartValidator;
 import org.springframework.web.bind.annotation.*;
 import org.springframework.web.servlet.support.ServletUriComponentsBuilder;
 
@@ -20,7 +19,6 @@ import javax.validation.Valid;
 import java.net.URI;
 import java.time.LocalDate;
 import java.util.List;
-import java.util.Optional;
 
 @RestController
 @RequestMapping(value = MenuController.REST_URL)
@@ -30,8 +28,6 @@ public class MenuController {
     public static final String REST_URL = "/menus";
 
     private final MenuRepository menuRepository;
-
-    private final SmartValidator validator;
 
     @GetMapping
     @Cacheable("menus")
@@ -55,10 +51,7 @@ public class MenuController {
 
     @PostMapping(consumes = MediaType.APPLICATION_JSON_VALUE)
     @Transactional
-    public ResponseEntity<?> create(@RequestBody @Valid Menu menu, BindingResult bindingResult) {
-        if (bindingResult.hasErrors()) {
-            return getMenuErrorResponseEntity(bindingResult);
-        }
+    public ResponseEntity<?> create(@RequestBody @Valid Menu menu) {
         menu.setId(null);
         if (menu.getRestaurant().getId() == null) {
             log.info("Menu has not been created because restaurant id is null.");
@@ -69,14 +62,7 @@ public class MenuController {
                     menu.getRestaurant().getId(), menu.getDate());
             return ResponseEntity.badRequest().body("The menu with these restaurant and date is already created.");
         }
-        menu.getDishes().forEach(dish -> {
-            dish.setId(null);
-            validator.validate(dish, bindingResult);
-        });
-        if (bindingResult.hasErrors()) {
-            log.info("The menu has not been created because there are some errors in dishes.");
-            return getDishErrorResponseEntity(bindingResult);
-        }
+        menu.getDishes().forEach(dish -> dish.setId(null));
         Menu created = menuRepository.save(menu);
         URI uriOfNewResource = ServletUriComponentsBuilder.fromCurrentContextPath()
                 .path(REST_URL + "/{id}")
@@ -88,38 +74,19 @@ public class MenuController {
 
     @PutMapping(value = "/{id}", consumes = MediaType.APPLICATION_JSON_VALUE)
     @Transactional
-    public ResponseEntity<?> update(@PathVariable long id, @RequestBody List<Dish> dishes, BindingResult bindingResult) {
-        Optional<Menu> oldMenu = menuRepository.getById(id);
-        if (oldMenu.isEmpty()) {
-            return getMenuNotFoundResponseEntity(id);
-        }
-        Menu menu = new Menu(id, oldMenu.get().getRestaurant(), oldMenu.get().getDate());
-        dishes.forEach(dish -> {
-            dish.setMenu(menu);
-            if (!oldMenu.get().getDishes().contains(dish)) {
-                dish.setId(null);
-            }
-            validator.validate(dish, bindingResult);
-        });
-        if (bindingResult.hasErrors()) {
-            log.info("The menu has not been updated because there are some errors in dishes");
-            return getDishErrorResponseEntity(bindingResult);
-        }
-        menu.setDishes(dishes);
+    @ResponseStatus(HttpStatus.NO_CONTENT)
+    public void update(@PathVariable long id, @RequestBody @Valid Menu menu) {
+        menu.setId(id);
         menuRepository.save(menu);
         log.info("The menu with id {} has been updated", id);
-        return ResponseEntity.noContent().build();
     }
 
     @DeleteMapping("/{id}")
     @Transactional
-    public ResponseEntity<?> delete(@PathVariable long id) {
-        if (menuRepository.findById(id).isEmpty()) {
-            return getMenuNotFoundResponseEntity(id);
-        }
+    @ResponseStatus(HttpStatus.NO_CONTENT)
+    public void delete(@PathVariable long id) {
         menuRepository.deleteById(id);
         log.info("The menu with id {} has been deleted.", id);
-        return ResponseEntity.noContent().build();
     }
 
     private ResponseEntity<String> getMenuNotFoundResponseEntity(Long id) {

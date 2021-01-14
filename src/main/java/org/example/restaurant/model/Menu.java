@@ -12,6 +12,7 @@ import org.hibernate.annotations.Fetch;
 import org.hibernate.annotations.FetchMode;
 
 import javax.persistence.*;
+import javax.validation.Valid;
 import javax.validation.constraints.NotNull;
 import java.time.LocalDate;
 import java.util.List;
@@ -37,6 +38,7 @@ public class Menu extends AbstractBaseEntity {
     @OneToMany(mappedBy = "menu", fetch = FetchType.LAZY, cascade = CascadeType.ALL, orphanRemoval = true)
     @JsonManagedReference
     @Fetch(FetchMode.SUBSELECT)
+    @Valid
     private List<Dish> dishes;
 
     public Menu(Long id, Restaurant restaurant, LocalDate date) {

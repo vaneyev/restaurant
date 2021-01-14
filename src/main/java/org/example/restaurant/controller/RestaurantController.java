@@ -4,6 +4,7 @@ import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.example.restaurant.model.Restaurant;
 import org.example.restaurant.repository.RestaurantRepository;
+import org.springframework.http.HttpStatus;
 import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
 import org.springframework.transaction.annotation.Transactional;
@@ -49,29 +50,18 @@ public class RestaurantController {
 
     @PutMapping(value = "/{id}", consumes = MediaType.APPLICATION_JSON_VALUE)
     @Transactional
-    public ResponseEntity<String> update(@PathVariable long id, @RequestBody @Valid Restaurant restaurant) {
-        return getResponseEntity(id, () -> {
+    @ResponseStatus(HttpStatus.NO_CONTENT)
+    public void update(@PathVariable long id, @RequestBody @Valid Restaurant restaurant) {
             restaurant.setId(id);
             restaurantRepository.save(restaurant);
             log.info("The restaurant with id {} has been created.", id);
-        });
     }
 
     @DeleteMapping("/{id}")
     @Transactional
-    public ResponseEntity<String> delete(@PathVariable long id) {
-        return getResponseEntity(id, () -> {
+    @ResponseStatus(HttpStatus.NO_CONTENT)
+    public void delete(@PathVariable long id) {
             restaurantRepository.deleteById(id);
             log.info("The restaurant with id {} has been deleted.", id);
-        });
-    }
-
-    private ResponseEntity<String> getResponseEntity(long id, Runnable runnable) {
-        if (restaurantRepository.findById(id).isEmpty()) {
-            log.info("The restaurant with id {} is not found.", id);
-            return ResponseEntity.badRequest().body(String.format("The restaurant with id %d is not found.", id));
-        }
-        runnable.run();
-        return ResponseEntity.noContent().build();
     }
 }

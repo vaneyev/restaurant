@@ -4,14 +4,13 @@ import com.fasterxml.jackson.core.type.TypeReference;
 import org.example.restaurant.model.Restaurant;
 import org.example.restaurant.repository.RestaurantRepository;
 import org.junit.jupiter.api.Test;
-import org.mockito.internal.matchers.apachecommons.ReflectionEquals;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.MediaType;
 
 import java.util.List;
 import java.util.Optional;
 
-import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.assertj.core.api.Assertions.assertThat;
 import static org.junit.jupiter.api.Assertions.assertTrue;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.*;
 import static org.springframework.test.web.servlet.result.MockMvcResultHandlers.print;
@@ -36,11 +35,11 @@ public class RestaurantControllerTests extends AbstractControllerTests {
                 .getResponse()
                 .getContentAsString();
         Restaurant actual = mapper.readValue(result, Restaurant.class);
-        assertTrue(new ReflectionEquals(restaurant1).matches(actual));
+        assertThat(actual).usingRecursiveComparison().isEqualTo(restaurant1);
     }
 
     @Test
-    public void getOneNotFound() throws Exception {
+    public void getNotFound() throws Exception {
         mockMvc.perform(get("/restaurants/{restaurant}", absentRestaurant.getId())
                 .with(userAuth))
                 .andDo(print())
@@ -59,7 +58,7 @@ public class RestaurantControllerTests extends AbstractControllerTests {
                 .getContentAsString();
         List<Restaurant> actual = mapper.readValue(result, new TypeReference<>() {
         });
-        assertListsOfRestaurantEquals(expected, actual);
+        assertThat(actual).usingRecursiveComparison().isEqualTo(expected);
     }
 
     @Test
@@ -74,7 +73,7 @@ public class RestaurantControllerTests extends AbstractControllerTests {
                 .getResponse()
                 .getContentAsString();
         Restaurant actual = mapper.readValue(result, Restaurant.class);
-        assertTrue(new ReflectionEquals(createdRestaurant).matches(actual));
+        assertThat(actual).usingRecursiveComparison().isEqualTo(createdRestaurant);
     }
 
     @Test
@@ -107,7 +106,7 @@ public class RestaurantControllerTests extends AbstractControllerTests {
                 .andExpect(status().isNoContent());
         Optional<Restaurant> actual = restaurantRepository.findById(updatedRestaurant.getId());
         assertTrue(actual.isPresent());
-        assertTrue(new ReflectionEquals(updatedRestaurant).matches(actual.get()));
+        assertThat(actual.get()).usingRecursiveComparison().isEqualTo(updatedRestaurant);
     }
 
     @Test
@@ -137,7 +136,10 @@ public class RestaurantControllerTests extends AbstractControllerTests {
                 .content(mapper.writeValueAsString(absentRestaurant))
                 .with(adminAuth))
                 .andDo(print())
-                .andExpect(status().isBadRequest());
+                .andExpect(status().isNoContent());
+        Optional<Restaurant> actual = restaurantRepository.findById(absentRestaurant.getId());
+        assertTrue(actual.isPresent());
+        assertThat(actual.get()).usingRecursiveComparison().isEqualTo(absentRestaurant);
     }
 
     @Test
@@ -150,7 +152,7 @@ public class RestaurantControllerTests extends AbstractControllerTests {
     }
 
     @Test
-    void deleteOneUnauthorized() throws Exception {
+    void deleteUnauthorized() throws Exception {
         mockMvc.perform(delete("/restaurants/{restaurant}", restaurant1.getId())
                 .with(userAuth))
                 .andDo(print())
@@ -158,17 +160,10 @@ public class RestaurantControllerTests extends AbstractControllerTests {
     }
 
     @Test
-    void deleteOneNotFound() throws Exception {
+    void deleteNotFound() throws Exception {
         mockMvc.perform(delete("/restaurants/{restaurant}", absentRestaurant.getId())
                 .with(adminAuth))
                 .andDo(print())
                 .andExpect(status().isBadRequest());
-    }
-
-    private void assertListsOfRestaurantEquals(List<Restaurant> expected, List<Restaurant> actual) {
-        assertEquals(expected.size(), actual.size());
-        for (int i = 0; i < expected.size(); i++) {
-            assertTrue(new ReflectionEquals(expected.get(i)).matches(actual.get(i)));
-        }
     }
 }

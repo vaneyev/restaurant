@@ -6,7 +6,6 @@ import org.example.restaurant.model.Menu;
 import org.example.restaurant.model.Restaurant;
 import org.example.restaurant.repository.MenuRepository;
 import org.junit.jupiter.api.Test;
-import org.mockito.internal.matchers.apachecommons.ReflectionEquals;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.MediaType;
 
@@ -14,7 +13,7 @@ import java.time.LocalDate;
 import java.util.List;
 import java.util.Optional;
 
-import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.assertj.core.api.Assertions.assertThat;
 import static org.junit.jupiter.api.Assertions.assertTrue;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.*;
 import static org.springframework.test.web.servlet.result.MockMvcResultHandlers.print;
@@ -59,11 +58,11 @@ class MenuControllerTests extends AbstractControllerTests {
                 .getResponse()
                 .getContentAsString();
         Menu actual = mapper.readValue(result, Menu.class);
-        assertMenuEquals(menu1, actual);
+        assertThat(actual).usingRecursiveComparison().isEqualTo(menu1);
     }
 
     @Test
-    void getOneNotFound() throws Exception {
+    void getNotFound() throws Exception {
         mockMvc.perform(get("/menus/{menu}", 4L)
                 .with(userAuth))
                 .andDo(print())
@@ -82,7 +81,7 @@ class MenuControllerTests extends AbstractControllerTests {
                 .getContentAsString();
         List<Menu> actual = mapper.readValue(result, new TypeReference<>() {
         });
-        assertListsOfMenuEquals(expected, actual);
+        assertThat(actual).usingRecursiveComparison().isEqualTo(expected);
     }
 
     @Test
@@ -97,7 +96,7 @@ class MenuControllerTests extends AbstractControllerTests {
                 .getResponse()
                 .getContentAsString();
         Menu actual = mapper.readValue(result, Menu.class);
-        assertMenuEquals(createdMenu, actual);
+        assertThat(actual).usingRecursiveComparison().isEqualTo(createdMenu);
     }
 
     @Test
@@ -154,20 +153,21 @@ class MenuControllerTests extends AbstractControllerTests {
     void update() throws Exception {
         mockMvc.perform(put("/menus/{menu}", updatedMenu.getId())
                 .contentType(MediaType.APPLICATION_JSON)
-                .content(mapper.writeValueAsString(updatedMenu.getDishes()))
+                .content(mapper.writeValueAsString(updatedMenu))
                 .with(adminAuth))
                 .andDo(print())
                 .andExpect(status().isNoContent());
         Optional<Menu> actual = menuRepository.getById(updatedMenu.getId());
         assertTrue(actual.isPresent());
-        assertMenuEquals(updatedMenu, actual.get());
+        assertThat(actual.get()).usingRecursiveComparison().ignoringFields("dishes.menu", "restaurant").isEqualTo(updatedMenu);
+        assertThat(actual.get().getRestaurant()).isEqualTo(updatedMenu.getRestaurant());
     }
 
     @Test
     void updateUnauthorized() throws Exception {
         mockMvc.perform(put("/menus/{menu}", updatedMenu.getId())
                 .contentType(MediaType.APPLICATION_JSON)
-                .content(mapper.writeValueAsString(updatedMenu.getDishes()))
+                .content(mapper.writeValueAsString(updatedMenu))
                 .with(userAuth))
                 .andDo(print())
                 .andExpect(status().isForbidden());
@@ -177,17 +177,21 @@ class MenuControllerTests extends AbstractControllerTests {
     void updateNotFound() throws Exception {
         mockMvc.perform(put("/menus/{menu}", createdMenu.getId())
                 .contentType(MediaType.APPLICATION_JSON)
-                .content(mapper.writeValueAsString(createdMenu.getDishes()))
+                .content(mapper.writeValueAsString(createdMenu))
                 .with(adminAuth))
                 .andDo(print())
-                .andExpect(status().isBadRequest());
+                .andExpect(status().isNoContent());
+        Optional<Menu> actual = menuRepository.getById(createdMenu.getId());
+        assertTrue(actual.isPresent());
+        assertThat(actual.get()).usingRecursiveComparison().ignoringFields("dishes.menu", "restaurant").isEqualTo(createdMenu);
+        assertThat(actual.get().getRestaurant()).isEqualTo(createdMenu.getRestaurant());
     }
 
     @Test
     void updateNotValidDish() throws Exception {
         mockMvc.perform(put("/menus/{menu}", menu1.getId())
                 .contentType(MediaType.APPLICATION_JSON)
-                .content(mapper.writeValueAsString(menuWithNotValidDish.getDishes()))
+                .content(mapper.writeValueAsString(menuWithNotValidDish))
                 .with(adminAuth))
                 .andDo(print())
                 .andExpect(status().isBadRequest());
@@ -203,7 +207,7 @@ class MenuControllerTests extends AbstractControllerTests {
     }
 
     @Test
-    void deleteOneUnauthorized() throws Exception {
+    void deleteUnauthorized() throws Exception {
         mockMvc.perform(delete("/menus/{menu}", menu1.getId())
                 .with(userAuth))
                 .andDo(print())
@@ -211,25 +215,10 @@ class MenuControllerTests extends AbstractControllerTests {
     }
 
     @Test
-    void deleteOneNotFound() throws Exception {
+    void deleteNotFound() throws Exception {
         mockMvc.perform(delete("/menus/{menu}", createdMenu.getId())
                 .with(adminAuth))
                 .andDo(print())
                 .andExpect(status().isBadRequest());
-    }
-
-    private void assertMenuEquals(Menu expected, Menu actual) {
-        assertTrue(new ReflectionEquals(expected, "dishes").matches(actual));
-        assertEquals(expected.getDishes().size(), actual.getDishes().size());
-        for (int i = 0; i < expected.getDishes().size(); i++) {
-            assertTrue(new ReflectionEquals(expected.getDishes().get(i)).matches(actual.getDishes().get(i)));
-        }
-    }
-
-    private void assertListsOfMenuEquals(List<Menu> expected, List<Menu> actual) {
-        assertEquals(expected.size(), actual.size());
-        for (int i = 0; i < expected.size(); i++) {
-            assertMenuEquals(expected.get(i), actual.get(i));
-        }
     }
 }
