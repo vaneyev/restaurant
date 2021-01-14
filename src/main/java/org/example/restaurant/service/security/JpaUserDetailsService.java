@@ -13,7 +13,6 @@ import org.springframework.stereotype.Service;
 
 import java.util.Collection;
 import java.util.HashSet;
-import java.util.Optional;
 
 @Service("userDetailsService")
 @RequiredArgsConstructor
@@ -23,16 +22,10 @@ public class JpaUserDetailsService implements UserDetailsService {
 
     @Override
     public UserDetails loadUserByUsername(String username) throws UsernameNotFoundException {
-        Optional<User> user = getUser(username);
-        if (user.isEmpty()) {
-            throw new UsernameNotFoundException(String.format("User %s not found.", username));
-        }
+        User user = userRepository.findByName(username)
+                .orElseThrow(()-> new UsernameNotFoundException(String.format("User %s not found.", username)));
         Collection<GrantedAuthority> authorities = new HashSet<>();
-        authorities.add(new SimpleGrantedAuthority(user.get().isAdmin() ? "ROLE_ADMIN" : "ROLE_USER"));
-        return new JpaUserDetails(user.get(), authorities);
-    }
-
-    public Optional<User> getUser(String username) {
-        return userRepository.findByName(username);
+        authorities.add(new SimpleGrantedAuthority(user.isAdmin() ? "ROLE_ADMIN" : "ROLE_USER"));
+        return new JpaUserDetails(user, authorities);
     }
 }
