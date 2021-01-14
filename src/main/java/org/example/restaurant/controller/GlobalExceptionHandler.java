@@ -1,6 +1,7 @@
 package org.example.restaurant.controller;
 
 import lombok.extern.slf4j.Slf4j;
+import org.hibernate.exception.ConstraintViolationException;
 import org.springframework.dao.EmptyResultDataAccessException;
 import org.springframework.http.HttpHeaders;
 import org.springframework.http.HttpStatus;
@@ -41,8 +42,8 @@ public class GlobalExceptionHandler extends ResponseEntityExceptionHandler {
         return ResponseEntity.notFound().build();
     }
 
-    @ExceptionHandler(IllegalArgumentException.class)
-    public ResponseEntity<?> handleIllegalArgumentException(IllegalArgumentException ex) {
+    @ExceptionHandler({IllegalArgumentException.class, ConstraintViolationException.class})
+    public ResponseEntity<?> handleIllegalArgumentException(RuntimeException ex) {
         log.info(ex.getMessage());
         return ResponseEntity.unprocessableEntity().body(ex.getMessage());
     }

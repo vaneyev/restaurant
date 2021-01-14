@@ -27,5 +27,5 @@ curl -u Admin:pass -i http://localhost:8080/restaurants -X POST -H "Content-Type
 ```
 ## Create menu
 ```shell
-curl -u Admin:pass -i http://localhost:8080/menus -X POST -H "Content-Type: application/json" --data '{"restaurant": {"id":1}, "date":"2020-12-27", "dishes":[{"name":"Oranges", "price":7}]}' | less
+curl -u Admin:pass -i http://localhost:8080/menus -X POST -H "Content-Type: application/json" --data '{"restaurant": {"id":1}, "date":"2020-12-27", "menuItems":[{"dish":{"id":3}, "price":7}]}' | less
 ```

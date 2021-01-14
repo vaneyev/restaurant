@@ -2,6 +2,7 @@ package org.example.restaurant;
 
 import com.fasterxml.jackson.core.type.TypeReference;
 import org.example.restaurant.model.Dish;
+import org.example.restaurant.model.MenuItem;
 import org.example.restaurant.model.Menu;
 import org.example.restaurant.model.Restaurant;
 import org.example.restaurant.repository.MenuRepository;
@@ -20,7 +21,10 @@ import static org.springframework.test.web.servlet.result.MockMvcResultHandlers.
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
 
 class MenuControllerTests extends AbstractControllerTests {
-
+    private final Dish dish1 = new Dish(1L, "Fish");
+    private final Dish dish2 = new Dish(2L, "Potato");
+    private final Dish dish3 = new Dish(3L, "Tomatoes");
+    private final Dish dish4 = new Dish(4L, "Beacon");
     private final Menu menu1 = new Menu(1L, restaurant1, LocalDate.of(2020, 12, 25));
     private final Menu menu3 = new Menu(3L, restaurant2, LocalDate.of(2020, 12, 25));
     private final Menu newMenu = new Menu(null, restaurant1, LocalDate.of(2020, 12, 27));
@@ -29,22 +33,22 @@ class MenuControllerTests extends AbstractControllerTests {
     private final Menu menuWithNullRestaurantId = new Menu(4L, new Restaurant(null, "Third"), LocalDate.of(2020, 12, 27));
     private final Menu menuWithNotValidDish = new Menu(4L, restaurant1, LocalDate.of(2020, 12, 27));
     private final Menu updatedMenu = new Menu(1L, restaurant1, LocalDate.of(2020, 12, 25));
-    private final Dish dish1 = new Dish(1L, menu1, "Fish", 10);
-    private final Dish dish2 = new Dish(2L, menu1, "Potato", 2);
-    private final Dish dish4 = new Dish(4L, menu3, "Beacon", 15);
-    private final Dish createdDish = new Dish(5L, createdMenu, "Oranges", 7);
-    private final Dish notValidDish = new Dish(5L, createdMenu, "N", null);
-    private final Dish updatedDish = new Dish(1L, updatedMenu, "Fish", 9);
-    private final Dish newDish = new Dish(null, updatedMenu, "Oranges", 7);
+    private final MenuItem menuItem1 = new MenuItem(1L, menu1, dish1, 10);
+    private final MenuItem menuItem2 = new MenuItem(2L, menu1, dish2, 2);
+    private final MenuItem menuItem4 = new MenuItem(4L, menu3, dish4, 15);
+    private final MenuItem createdMenuItem = new MenuItem(5L, createdMenu, dish3, 7);
+    private final MenuItem notValidMenuItem = new MenuItem(5L, createdMenu, null, null);
+    private final MenuItem updatedMenuItem = new MenuItem(1L, updatedMenu, dish1, 9);
+    private final MenuItem newMenuItem = new MenuItem(null, updatedMenu, dish3, 7);
 
     {
-        menu1.setDishes(List.of(dish1, dish2));
-        menu3.setDishes(List.of(dish4));
-        newMenu.setDishes(List.of(newDish));
-        createdMenu.setDishes(List.of(createdDish));
-        notValidMenu.setDishes(List.of(createdDish));
-        menuWithNotValidDish.setDishes(List.of(notValidDish));
-        updatedMenu.setDishes(List.of(updatedDish, dish2, createdDish));
+        menu1.setMenuItems(List.of(menuItem1, menuItem2));
+        menu3.setMenuItems(List.of(menuItem4));
+        newMenu.setMenuItems(List.of(newMenuItem));
+        createdMenu.setMenuItems(List.of(createdMenuItem));
+        notValidMenu.setMenuItems(List.of(createdMenuItem));
+        menuWithNotValidDish.setMenuItems(List.of(notValidMenuItem));
+        updatedMenu.setMenuItems(List.of(updatedMenuItem, menuItem2, createdMenuItem));
     }
 
     @Autowired
@@ -171,7 +175,7 @@ class MenuControllerTests extends AbstractControllerTests {
                 .andExpect(status().isNoContent());
         Optional<Menu> actual = menuRepository.getById(updatedMenu.getId());
         assertTrue(actual.isPresent());
-        assertThat(actual.get()).usingRecursiveComparison().ignoringFields("dishes.menu", "restaurant").isEqualTo(updatedMenu);
+        assertThat(actual.get()).usingRecursiveComparison().ignoringFields("menuItems.menu", "restaurant").isEqualTo(updatedMenu);
         assertThat(actual.get().getRestaurant()).isEqualTo(updatedMenu.getRestaurant());
     }
 
@@ -195,7 +199,7 @@ class MenuControllerTests extends AbstractControllerTests {
                 .andExpect(status().isNoContent());
         Optional<Menu> actual = menuRepository.getById(createdMenu.getId());
         assertTrue(actual.isPresent());
-        assertThat(actual.get()).usingRecursiveComparison().ignoringFields("dishes.menu", "restaurant").isEqualTo(createdMenu);
+        assertThat(actual.get()).usingRecursiveComparison().ignoringFields("menuItems.menu", "restaurant").isEqualTo(createdMenu);
         assertThat(actual.get().getRestaurant()).isEqualTo(createdMenu.getRestaurant());
     }
 

@@ -51,10 +51,7 @@ public class MenuController {
         if (menu.getRestaurant().getId() == null) {
             throw new IllegalArgumentException("Restaurant id must not be null.");
         }
-        if (menuRepository.findFirstByRestaurantIdAndDate(menu.getRestaurant().getId(), menu.getDate()).isPresent()) {
-            throw new EntityExistsException("The menu with these restaurant and date is already created.");
-        }
-        menu.getDishes().forEach(dish -> {
+        menu.getMenuItems().forEach(dish -> {
             if (dish.getId() != null) {
                 throw new IllegalArgumentException("Dish id is not null");
             }

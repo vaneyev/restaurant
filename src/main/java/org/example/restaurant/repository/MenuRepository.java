@@ -10,11 +10,11 @@ import java.util.List;
 import java.util.Optional;
 
 public interface MenuRepository extends JpaRepository<Menu, Long> {
-    @EntityGraph(attributePaths = {"dishes", "restaurant"}, type = EntityGraph.EntityGraphType.LOAD)
+    @EntityGraph(attributePaths = {"menuItems", "menuItems.dish", "restaurant"}, type = EntityGraph.EntityGraphType.LOAD)
     @Query("select m from Menu m where m.date=:date")
     List<Menu> findByDate(LocalDate date);
 
-    @EntityGraph(attributePaths = {"dishes", "restaurant"}, type = EntityGraph.EntityGraphType.LOAD)
+    @EntityGraph(attributePaths = {"menuItems", "menuItems.dish", "restaurant"}, type = EntityGraph.EntityGraphType.LOAD)
     @Query("select m from Menu m where m.id=:id")
     Optional<Menu> getById(Long id);
 

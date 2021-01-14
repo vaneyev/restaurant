@@ -1,3 +1,4 @@
+DROP TABLE IF EXISTS menu_items;
 DROP TABLE IF EXISTS dishes;
 DROP TABLE IF EXISTS votes;
 DROP TABLE IF EXISTS menus;
@@ -31,8 +32,10 @@ CREATE TABLE roles
 
 CREATE TABLE user_roles
 (
-    user_id BIGINT CONSTRAINT user_roles_users_id_fk REFERENCES users(id),
-    role_id BIGINT CONSTRAINT user_roles_roles_id_fk REFERENCES roles(id),
+    user_id BIGINT
+        CONSTRAINT user_roles_users_id_fk REFERENCES users (id) ON DELETE CASCADE,
+    role_id BIGINT
+        CONSTRAINT user_roles_roles_id_fk REFERENCES roles (id) ON DELETE CASCADE,
     CONSTRAINT user_role_pk PRIMARY KEY (user_id, role_id)
 );
 
@@ -56,16 +59,27 @@ CREATE UNIQUE INDEX menus_restaurant_id_date_unique
 
 CREATE TABLE dishes
 (
-    id      IDENTITY PRIMARY KEY,
-    name    VARCHAR NOT NULL,
-    menu_id BIGINT  NOT NULL,
-    price   INT     NOT NULL,
+    id   IDENTITY PRIMARY KEY,
+    name VARCHAR
+);
+
+CREATE TABLE menu_items
+(
+    id        IDENTITY PRIMARY KEY,
+    dish_id BIGINT NOT NULL,
+    menu_id   BIGINT NOT NULL,
+    price     INT    NOT NULL,
     CONSTRAINT menu_items_pk
         PRIMARY KEY (id),
+    CONSTRAINT menu_items_dishes_id_fk
+        FOREIGN KEY (dish_id) REFERENCES dishes (id)
+            ON DELETE CASCADE,
     CONSTRAINT menu_items_menus_id_fk
         FOREIGN KEY (menu_id) REFERENCES menus (id)
             ON DELETE CASCADE
 );
+
+CREATE UNIQUE INDEX menu_items_dish_id_menu_id_unique ON menu_items (dish_id, menu_id);
 
 CREATE TABLE votes
 (

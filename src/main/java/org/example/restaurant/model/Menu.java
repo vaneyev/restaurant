@@ -39,7 +39,7 @@ public class Menu extends AbstractBaseEntity {
     @JsonManagedReference
     @Fetch(FetchMode.SUBSELECT)
     @Valid
-    private List<Dish> dishes;
+    private List<MenuItem> menuItems;
 
     public Menu(Long id, Restaurant restaurant, LocalDate date) {
         this.setId(id);
