@@ -23,6 +23,7 @@ class MenuControllerTests extends AbstractControllerTests {
 
     private final Menu menu1 = new Menu(1L, restaurant1, LocalDate.of(2020, 12, 25));
     private final Menu menu3 = new Menu(3L, restaurant2, LocalDate.of(2020, 12, 25));
+    private final Menu newMenu = new Menu(null, restaurant1, LocalDate.of(2020, 12, 27));
     private final Menu createdMenu = new Menu(4L, restaurant1, LocalDate.of(2020, 12, 27));
     private final Menu notValidMenu = new Menu(4L, null, null);
     private final Menu menuWithNullRestaurantId = new Menu(4L, new Restaurant(null, "Third"), LocalDate.of(2020, 12, 27));
@@ -34,15 +35,16 @@ class MenuControllerTests extends AbstractControllerTests {
     private final Dish createdDish = new Dish(5L, createdMenu, "Oranges", 7);
     private final Dish notValidDish = new Dish(5L, createdMenu, "N", null);
     private final Dish updatedDish = new Dish(1L, updatedMenu, "Fish", 9);
-    private final Dish newDish = new Dish(5L, updatedMenu, "Oranges", 7);
+    private final Dish newDish = new Dish(null, updatedMenu, "Oranges", 7);
 
     {
         menu1.setDishes(List.of(dish1, dish2));
         menu3.setDishes(List.of(dish4));
+        newMenu.setDishes(List.of(newDish));
         createdMenu.setDishes(List.of(createdDish));
         notValidMenu.setDishes(List.of(createdDish));
         menuWithNotValidDish.setDishes(List.of(notValidDish));
-        updatedMenu.setDishes(List.of(updatedDish, dish2, newDish));
+        updatedMenu.setDishes(List.of(updatedDish, dish2, createdDish));
     }
 
     @Autowired
@@ -88,7 +90,7 @@ class MenuControllerTests extends AbstractControllerTests {
     void create() throws Exception {
         String result = mockMvc.perform(post("/menus")
                 .contentType(MediaType.APPLICATION_JSON)
-                .content(mapper.writeValueAsString(createdMenu))
+                .content(mapper.writeValueAsString(newMenu))
                 .with(adminAuth))
                 .andDo(print())
                 .andExpect(status().isCreated())
@@ -97,6 +99,16 @@ class MenuControllerTests extends AbstractControllerTests {
                 .getContentAsString();
         Menu actual = mapper.readValue(result, Menu.class);
         assertThat(actual).usingRecursiveComparison().isEqualTo(createdMenu);
+    }
+
+    @Test
+    void createWithId() throws Exception {
+        mockMvc.perform(post("/menus")
+                .contentType(MediaType.APPLICATION_JSON)
+                .content(mapper.writeValueAsString(createdMenu))
+                .with(adminAuth))
+                .andDo(print())
+                .andExpect(status().isUnprocessableEntity());
     }
 
     @Test
@@ -126,7 +138,7 @@ class MenuControllerTests extends AbstractControllerTests {
                 .content(mapper.writeValueAsString(menuWithNullRestaurantId))
                 .with(adminAuth))
                 .andDo(print())
-                .andExpect(status().isBadRequest());
+                .andExpect(status().isUnprocessableEntity());
     }
 
     @Test
@@ -136,7 +148,7 @@ class MenuControllerTests extends AbstractControllerTests {
                 .content(mapper.writeValueAsString(menu1))
                 .with(adminAuth))
                 .andDo(print())
-                .andExpect(status().isBadRequest());
+                .andExpect(status().isUnprocessableEntity());
     }
 
     @Test
@@ -219,6 +231,6 @@ class MenuControllerTests extends AbstractControllerTests {
         mockMvc.perform(delete("/menus/{menu}", createdMenu.getId())
                 .with(adminAuth))
                 .andDo(print())
-                .andExpect(status().isBadRequest());
+                .andExpect(status().isNotFound());
     }
 }

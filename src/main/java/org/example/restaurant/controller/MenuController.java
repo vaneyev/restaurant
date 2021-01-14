@@ -11,10 +11,10 @@ import org.springframework.http.HttpStatus;
 import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
 import org.springframework.transaction.annotation.Transactional;
-import org.springframework.validation.BindingResult;
 import org.springframework.web.bind.annotation.*;
 import org.springframework.web.servlet.support.ServletUriComponentsBuilder;
 
+import javax.persistence.EntityExistsException;
 import javax.validation.Valid;
 import java.net.URI;
 import java.time.LocalDate;
@@ -37,32 +37,28 @@ public class MenuController {
     }
 
     @GetMapping("/{id}")
-    public ResponseEntity<Menu> get(@PathVariable Long id) {
-        return menuRepository.getById(id)
-                .map(menu -> {
-                    log.info("Get menu by id {}", id);
-                    return ResponseEntity.ok(menu);
-                })
-                .orElseGet(() -> {
-                    log.info("Menu with id {} not found", id);
-                    return ResponseEntity.notFound().build();
-                });
+    public Menu get(@PathVariable Long id) {
+        log.info("Get menu by id {}", id);
+        return menuRepository.getById(id).orElseThrow();
     }
 
     @PostMapping(consumes = MediaType.APPLICATION_JSON_VALUE)
     @Transactional
     public ResponseEntity<?> create(@RequestBody @Valid Menu menu) {
-        menu.setId(null);
+        if (menu.getId() != null) {
+            throw new IllegalArgumentException("Menu id is not null");
+        }
         if (menu.getRestaurant().getId() == null) {
-            log.info("Menu has not been created because restaurant id is null.");
-            return ResponseEntity.badRequest().body("Restaurant id must not be null.");
+            throw new IllegalArgumentException("Restaurant id must not be null.");
         }
         if (menuRepository.findFirstByRestaurantIdAndDate(menu.getRestaurant().getId(), menu.getDate()).isPresent()) {
-            log.info("The menu has not been created because the menu with these restaurant id {} and date {} is already created.",
-                    menu.getRestaurant().getId(), menu.getDate());
-            return ResponseEntity.badRequest().body("The menu with these restaurant and date is already created.");
+            throw new EntityExistsException("The menu with these restaurant and date is already created.");
         }
-        menu.getDishes().forEach(dish -> dish.setId(null));
+        menu.getDishes().forEach(dish -> {
+            if (dish.getId() != null) {
+                throw new IllegalArgumentException("Dish id is not null");
+            }
+        });
         Menu created = menuRepository.save(menu);
         URI uriOfNewResource = ServletUriComponentsBuilder.fromCurrentContextPath()
                 .path(REST_URL + "/{id}")
@@ -76,7 +72,9 @@ public class MenuController {
     @Transactional
     @ResponseStatus(HttpStatus.NO_CONTENT)
     public void update(@PathVariable long id, @RequestBody @Valid Menu menu) {
-        menu.setId(id);
+        if (id != menu.getId()) {
+            throw new IllegalArgumentException("Menu id don't equals path variable");
+        }
         menuRepository.save(menu);
         log.info("The menu with id {} has been updated", id);
     }
@@ -87,31 +85,5 @@ public class MenuController {
     public void delete(@PathVariable long id) {
         menuRepository.deleteById(id);
         log.info("The menu with id {} has been deleted.", id);
-    }
-
-    private ResponseEntity<String> getMenuNotFoundResponseEntity(Long id) {
-        log.info("The menu with id {} is not found.", id);
-        return ResponseEntity.badRequest().body(String.format("Menu with id %d is not found.", id));
-    }
-
-    private ResponseEntity<String> getMenuErrorResponseEntity(BindingResult bindingResult) {
-        return getErrorResponseEntity(bindingResult, "Menu data is not valid.\n");
-    }
-
-    private ResponseEntity<String> getDishErrorResponseEntity(BindingResult bindingResult) {
-        return getErrorResponseEntity(bindingResult, "Dish data is not valid.\n");
-    }
-
-    private ResponseEntity<String> getErrorResponseEntity(BindingResult bindingResult, String message) {
-        StringBuilder stringBuilder = new StringBuilder();
-        stringBuilder.append(message);
-        bindingResult.getFieldErrors().forEach(fieldError -> {
-            stringBuilder.append(fieldError.getField());
-            stringBuilder.append(": ");
-            stringBuilder.append(fieldError.getDefaultMessage());
-            stringBuilder.append("\n");
-        });
-        log.info(stringBuilder.toString());
-        return ResponseEntity.badRequest().body(stringBuilder.toString());
     }
 }

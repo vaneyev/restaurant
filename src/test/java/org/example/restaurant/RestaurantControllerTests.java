@@ -17,6 +17,7 @@ import static org.springframework.test.web.servlet.result.MockMvcResultHandlers.
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
 
 public class RestaurantControllerTests extends AbstractControllerTests {
+    private final Restaurant newRestaurant = new Restaurant(null, "New restaurant");
     private final Restaurant createdRestaurant = new Restaurant(3L, "New restaurant");
     private final Restaurant updatedRestaurant = new Restaurant(1L, "First and biggest");
     private final Restaurant notValidRestaurant = new Restaurant(1L, "N");
@@ -65,7 +66,7 @@ public class RestaurantControllerTests extends AbstractControllerTests {
     void create() throws Exception {
         String result = mockMvc.perform(post("/restaurants")
                 .contentType(MediaType.APPLICATION_JSON)
-                .content(mapper.writeValueAsString(createdRestaurant))
+                .content(mapper.writeValueAsString(newRestaurant))
                 .with(adminAuth))
                 .andDo(print())
                 .andExpect(status().isCreated())
@@ -74,6 +75,16 @@ public class RestaurantControllerTests extends AbstractControllerTests {
                 .getContentAsString();
         Restaurant actual = mapper.readValue(result, Restaurant.class);
         assertThat(actual).usingRecursiveComparison().isEqualTo(createdRestaurant);
+    }
+
+    @Test
+    void createWithId() throws Exception {
+        mockMvc.perform(post("/restaurants")
+                .contentType(MediaType.APPLICATION_JSON)
+                .content(mapper.writeValueAsString(createdRestaurant))
+                .with(adminAuth))
+                .andDo(print())
+                .andExpect(status().isUnprocessableEntity());
     }
 
     @Test
@@ -164,6 +175,6 @@ public class RestaurantControllerTests extends AbstractControllerTests {
         mockMvc.perform(delete("/restaurants/{restaurant}", absentRestaurant.getId())
                 .with(adminAuth))
                 .andDo(print())
-                .andExpect(status().isBadRequest());
+                .andExpect(status().isNotFound());
     }
 }

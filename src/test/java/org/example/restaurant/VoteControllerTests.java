@@ -84,7 +84,7 @@ class VoteControllerTests extends AbstractControllerTests {
                 put("/votes/restaurants/{restaurantId}", 1L)
                         .with(userAuth))
                 .andDo(print())
-                .andExpect(status().isBadRequest());
+                .andExpect(status().isUnprocessableEntity());
         dateTimeService.setSystem();
     }
 

@@ -81,14 +81,12 @@ public class VoteController {
     public ResponseEntity<?> update(@AuthenticationPrincipal JpaUserDetails user, @PathVariable long restaurantId) {
         LocalDateTime dateTime = dateTimeService.getLocalDateTime();
         if (dateTime.toLocalTime().isAfter(limitTime)) {
-            log.info("Vote has not been updated because current time {} is after {}", dateTime.toLocalTime(), limitTime);
-            return ResponseEntity.badRequest().body("Too late.");
+            throw new IllegalArgumentException("Too late.");
         }
         Vote vote = new Vote(user.getId(), dateTime.toLocalDate());
         Optional<Vote> oldVote = voteRepository.findOne(Example.of(vote));
         if (oldVote.isEmpty()) {
-            log.info("Vote is not created for user {}, restaurant id {}, date {}.", user.getUsername(), restaurantId, dateTime);
-            return ResponseEntity.badRequest().body("Too late.");
+            throw new IllegalArgumentException("Too late.");
         }
         oldVote.get().setRestaurantId(restaurantId);
         voteRepository.save(oldVote.get());

@@ -25,20 +25,22 @@ public class RestaurantController {
     private final RestaurantRepository restaurantRepository;
 
     @GetMapping
-    public ResponseEntity<List<Restaurant>> getAll() {
+    public List<Restaurant> getAll() {
         log.info("Getting the all restaurants");
-        return ResponseEntity.ok(restaurantRepository.findAll());
+        return restaurantRepository.findAll();
     }
 
     @GetMapping("/{id}")
-    public ResponseEntity<Restaurant> get(@PathVariable Long id) {
+    public Restaurant get(@PathVariable Long id) {
         log.info("Getting a restaurant with id {}.", id);
-        return restaurantRepository.findById(id).map(ResponseEntity::ok).orElseGet(() -> ResponseEntity.notFound().build());
+        return restaurantRepository.findById(id).orElseThrow();
     }
 
     @PostMapping(consumes = MediaType.APPLICATION_JSON_VALUE)
     public ResponseEntity<Restaurant> create(@RequestBody @Valid Restaurant restaurant) {
-        restaurant.setId(null);
+        if (restaurant.getId() != null) {
+            throw new IllegalArgumentException("Restaurant id is not null");
+        }
         Restaurant created = restaurantRepository.save(restaurant);
         URI uriOfNewResource = ServletUriComponentsBuilder.fromCurrentContextPath()
                 .path(REST_URL + "/{id}")
@@ -52,16 +54,18 @@ public class RestaurantController {
     @Transactional
     @ResponseStatus(HttpStatus.NO_CONTENT)
     public void update(@PathVariable long id, @RequestBody @Valid Restaurant restaurant) {
-            restaurant.setId(id);
-            restaurantRepository.save(restaurant);
-            log.info("The restaurant with id {} has been created.", id);
+        if (id != restaurant.getId()) {
+            throw new IllegalArgumentException("Restaurant id don't equals path variable");
+        }
+        restaurantRepository.save(restaurant);
+        log.info("The restaurant with id {} has been created.", id);
     }
 
     @DeleteMapping("/{id}")
     @Transactional
     @ResponseStatus(HttpStatus.NO_CONTENT)
     public void delete(@PathVariable long id) {
-            restaurantRepository.deleteById(id);
-            log.info("The restaurant with id {} has been deleted.", id);
+        restaurantRepository.deleteById(id);
+        log.info("The restaurant with id {} has been deleted.", id);
     }
 }
