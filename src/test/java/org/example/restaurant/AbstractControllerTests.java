@@ -1,6 +1,7 @@
 package org.example.restaurant;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
+import org.example.restaurant.model.Dish;
 import org.example.restaurant.model.Restaurant;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.autoconfigure.web.servlet.AutoConfigureMockMvc;
@@ -23,8 +24,15 @@ import static org.springframework.security.test.web.servlet.request.SecurityMock
 public abstract class AbstractControllerTests {
     protected final RequestPostProcessor adminAuth = httpBasic("Admin", "pass");
     protected final RequestPostProcessor userAuth = httpBasic("User", "pass");
+
     protected final Restaurant restaurant1 = new Restaurant(1L, "First");
     protected final Restaurant restaurant2 = new Restaurant(2L, "Second");
+
+    protected final Dish dish1 = new Dish(1L, "Fish");
+    protected final Dish dish2 = new Dish(2L, "Potato");
+    protected final Dish dish3 = new Dish(3L, "Tomatoes");
+    protected final Dish dish4 = new Dish(4L, "Beacon");
+
     protected final LocalDateTime early = LocalDateTime.of(2020, 12, 25, 10, 0);
     protected final LocalDateTime late = LocalDateTime.of(2020, 12, 25, 12, 0);
 

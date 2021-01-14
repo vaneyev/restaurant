@@ -1,8 +1,8 @@
 package org.example.restaurant;
 
 import com.fasterxml.jackson.core.type.TypeReference;
-import org.example.restaurant.model.Restaurant;
-import org.example.restaurant.repository.RestaurantRepository;
+import org.example.restaurant.model.Dish;
+import org.example.restaurant.repository.DishRepository;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.MediaType;
@@ -16,32 +16,32 @@ import static org.springframework.test.web.servlet.request.MockMvcRequestBuilder
 import static org.springframework.test.web.servlet.result.MockMvcResultHandlers.print;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
 
-public class RestaurantControllerTests extends AbstractControllerTests {
-    private final Restaurant newRestaurant = new Restaurant(null, "New restaurant");
-    private final Restaurant createdRestaurant = new Restaurant(3L, "New restaurant");
-    private final Restaurant updatedRestaurant = new Restaurant(1L, "First and biggest");
-    private final Restaurant notValidRestaurant = new Restaurant(1L, "N");
-    private final Restaurant absentRestaurant = new Restaurant(3L, "Absent restaurant");
+public class DishControllerTests extends AbstractControllerTests {
+    private final Dish newDish = new Dish(null, "Oranges");
+    private final Dish createdDish = new Dish(5L, "Oranges");
+    private final Dish updatedDish = new Dish(1L, "Herring");
+    private final Dish notValidDish = new Dish(1L, "N");
+    private final Dish absentDish = new Dish(5L, "Absent dish");
 
     @Autowired
-    RestaurantRepository restaurantRepository;
+    DishRepository dishRepository;
 
     @Test
     public void getOne() throws Exception {
-        String result = mockMvc.perform(get("/restaurants/{restaurant}", restaurant1.getId())
+        String result = mockMvc.perform(get("/dishes/{dish}", dish1.getId())
                 .with(adminAuth))
                 .andDo(print())
                 .andExpect(status().isOk())
                 .andReturn()
                 .getResponse()
                 .getContentAsString();
-        Restaurant actual = mapper.readValue(result, Restaurant.class);
-        assertThat(actual).usingRecursiveComparison().isEqualTo(restaurant1);
+        Dish actual = mapper.readValue(result, Dish.class);
+        assertThat(actual).usingRecursiveComparison().isEqualTo(dish1);
     }
 
     @Test
     public void getNotFound() throws Exception {
-        mockMvc.perform(get("/restaurants/{restaurant}", absentRestaurant.getId())
+        mockMvc.perform(get("/dishes/{dish}", absentDish.getId())
                 .with(adminAuth))
                 .andDo(print())
                 .andExpect(status().isNotFound());
@@ -49,39 +49,39 @@ public class RestaurantControllerTests extends AbstractControllerTests {
 
     @Test
     public void getAll() throws Exception {
-        List<Restaurant> expected = List.of(restaurant1, restaurant2);
-        String result = mockMvc.perform(get("/restaurants")
+        List<Dish> expected = List.of(dish1, dish2, dish3, dish4);
+        String result = mockMvc.perform(get("/dishes")
                 .with(adminAuth))
                 .andDo(print())
                 .andExpect(status().isOk())
                 .andReturn()
                 .getResponse()
                 .getContentAsString();
-        List<Restaurant> actual = mapper.readValue(result, new TypeReference<>() {
+        List<Dish> actual = mapper.readValue(result, new TypeReference<>() {
         });
         assertThat(actual).usingRecursiveComparison().isEqualTo(expected);
     }
 
     @Test
     void create() throws Exception {
-        String result = mockMvc.perform(post("/restaurants")
+        String result = mockMvc.perform(post("/dishes")
                 .contentType(MediaType.APPLICATION_JSON)
-                .content(mapper.writeValueAsString(newRestaurant))
+                .content(mapper.writeValueAsString(newDish))
                 .with(adminAuth))
                 .andDo(print())
                 .andExpect(status().isCreated())
                 .andReturn()
                 .getResponse()
                 .getContentAsString();
-        Restaurant actual = mapper.readValue(result, Restaurant.class);
-        assertThat(actual).usingRecursiveComparison().isEqualTo(createdRestaurant);
+        Dish actual = mapper.readValue(result, Dish.class);
+        assertThat(actual).usingRecursiveComparison().isEqualTo(createdDish);
     }
 
     @Test
     void createWithId() throws Exception {
-        mockMvc.perform(post("/restaurants")
+        mockMvc.perform(post("/dishes")
                 .contentType(MediaType.APPLICATION_JSON)
-                .content(mapper.writeValueAsString(createdRestaurant))
+                .content(mapper.writeValueAsString(createdDish))
                 .with(adminAuth))
                 .andDo(print())
                 .andExpect(status().isUnprocessableEntity());
@@ -89,9 +89,9 @@ public class RestaurantControllerTests extends AbstractControllerTests {
 
     @Test
     void createUnauthorized() throws Exception {
-        mockMvc.perform(post("/restaurants")
+        mockMvc.perform(post("/dishes")
                 .contentType(MediaType.APPLICATION_JSON)
-                .content(mapper.writeValueAsString(createdRestaurant))
+                .content(mapper.writeValueAsString(createdDish))
                 .with(userAuth))
                 .andDo(print())
                 .andExpect(status().isForbidden());
@@ -99,9 +99,9 @@ public class RestaurantControllerTests extends AbstractControllerTests {
 
     @Test
     void createNotValid() throws Exception {
-        mockMvc.perform(post("/restaurants")
+        mockMvc.perform(post("/dishes")
                 .contentType(MediaType.APPLICATION_JSON)
-                .content(mapper.writeValueAsString(notValidRestaurant))
+                .content(mapper.writeValueAsString(notValidDish))
                 .with(adminAuth))
                 .andDo(print())
                 .andExpect(status().isUnprocessableEntity());
@@ -109,22 +109,22 @@ public class RestaurantControllerTests extends AbstractControllerTests {
 
     @Test
     void update() throws Exception {
-        mockMvc.perform(put("/restaurants/{restaurant}", updatedRestaurant.getId())
+        mockMvc.perform(put("/dishes/{dish}", updatedDish.getId())
                 .contentType(MediaType.APPLICATION_JSON)
-                .content(mapper.writeValueAsString(updatedRestaurant))
+                .content(mapper.writeValueAsString(updatedDish))
                 .with(adminAuth))
                 .andDo(print())
                 .andExpect(status().isNoContent());
-        Optional<Restaurant> actual = restaurantRepository.findById(updatedRestaurant.getId());
+        Optional<Dish> actual = dishRepository.findById(updatedDish.getId());
         assertTrue(actual.isPresent());
-        assertThat(actual.get()).usingRecursiveComparison().isEqualTo(updatedRestaurant);
+        assertThat(actual.get()).usingRecursiveComparison().isEqualTo(updatedDish);
     }
 
     @Test
     void updateUnauthorized() throws Exception {
-        mockMvc.perform(put("/restaurants/{restaurant}", updatedRestaurant.getId())
+        mockMvc.perform(put("/dishes/{dish}", updatedDish.getId())
                 .contentType(MediaType.APPLICATION_JSON)
-                .content(mapper.writeValueAsString(updatedRestaurant))
+                .content(mapper.writeValueAsString(updatedDish))
                 .with(userAuth))
                 .andDo(print())
                 .andExpect(status().isForbidden());
@@ -132,9 +132,9 @@ public class RestaurantControllerTests extends AbstractControllerTests {
 
     @Test
     void updateNotValid() throws Exception {
-        mockMvc.perform(put("/restaurants/{restaurant}", notValidRestaurant.getId())
+        mockMvc.perform(put("/dishes/{dish}", notValidDish.getId())
                 .contentType(MediaType.APPLICATION_JSON)
-                .content(mapper.writeValueAsString(notValidRestaurant))
+                .content(mapper.writeValueAsString(notValidDish))
                 .with(adminAuth))
                 .andDo(print())
                 .andExpect(status().isUnprocessableEntity());
@@ -142,29 +142,29 @@ public class RestaurantControllerTests extends AbstractControllerTests {
 
     @Test
     void updateNotFound() throws Exception {
-        mockMvc.perform(put("/restaurants/{restaurant}", absentRestaurant.getId())
+        mockMvc.perform(put("/dishes/{dish}", absentDish.getId())
                 .contentType(MediaType.APPLICATION_JSON)
-                .content(mapper.writeValueAsString(absentRestaurant))
+                .content(mapper.writeValueAsString(absentDish))
                 .with(adminAuth))
                 .andDo(print())
                 .andExpect(status().isNoContent());
-        Optional<Restaurant> actual = restaurantRepository.findById(absentRestaurant.getId());
+        Optional<Dish> actual = dishRepository.findById(absentDish.getId());
         assertTrue(actual.isPresent());
-        assertThat(actual.get()).usingRecursiveComparison().isEqualTo(absentRestaurant);
+        assertThat(actual.get()).usingRecursiveComparison().isEqualTo(absentDish);
     }
 
     @Test
     void deleteOne() throws Exception {
-        mockMvc.perform(delete("/restaurants/{restaurant}", restaurant1.getId())
+        mockMvc.perform(delete("/dishes/{dish}", dish1.getId())
                 .with(adminAuth))
                 .andDo(print())
                 .andExpect(status().isNoContent());
-        assertTrue(restaurantRepository.findById(restaurant1.getId()).isEmpty());
+        assertTrue(dishRepository.findById(dish1.getId()).isEmpty());
     }
 
     @Test
     void deleteUnauthorized() throws Exception {
-        mockMvc.perform(delete("/restaurants/{restaurant}", restaurant1.getId())
+        mockMvc.perform(delete("/dishes/{dish}", restaurant1.getId())
                 .with(userAuth))
                 .andDo(print())
                 .andExpect(status().isForbidden());
@@ -172,7 +172,7 @@ public class RestaurantControllerTests extends AbstractControllerTests {
 
     @Test
     void deleteNotFound() throws Exception {
-        mockMvc.perform(delete("/restaurants/{restaurant}", absentRestaurant.getId())
+        mockMvc.perform(delete("/dishes/{dish}", absentDish.getId())
                 .with(adminAuth))
                 .andDo(print())
                 .andExpect(status().isNotFound());

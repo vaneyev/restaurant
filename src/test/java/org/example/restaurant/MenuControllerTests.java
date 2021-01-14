@@ -1,9 +1,8 @@
 package org.example.restaurant;
 
 import com.fasterxml.jackson.core.type.TypeReference;
-import org.example.restaurant.model.Dish;
-import org.example.restaurant.model.MenuItem;
 import org.example.restaurant.model.Menu;
+import org.example.restaurant.model.MenuItem;
 import org.example.restaurant.model.Restaurant;
 import org.example.restaurant.repository.MenuRepository;
 import org.junit.jupiter.api.Test;
@@ -21,10 +20,6 @@ import static org.springframework.test.web.servlet.result.MockMvcResultHandlers.
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
 
 class MenuControllerTests extends AbstractControllerTests {
-    private final Dish dish1 = new Dish(1L, "Fish");
-    private final Dish dish2 = new Dish(2L, "Potato");
-    private final Dish dish3 = new Dish(3L, "Tomatoes");
-    private final Dish dish4 = new Dish(4L, "Beacon");
     private final Menu menu1 = new Menu(1L, restaurant1, LocalDate.of(2020, 12, 25));
     private final Menu menu3 = new Menu(3L, restaurant2, LocalDate.of(2020, 12, 25));
     private final Menu newMenu = new Menu(null, restaurant1, LocalDate.of(2020, 12, 27));

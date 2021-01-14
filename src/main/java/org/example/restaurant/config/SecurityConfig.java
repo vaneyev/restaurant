@@ -25,9 +25,8 @@ public class SecurityConfig extends WebSecurityConfigurerAdapter {
     @Override
     protected void configure(HttpSecurity http) throws Exception {
         http.sessionManagement().sessionCreationPolicy(SessionCreationPolicy.STATELESS);
-        http.authorizeRequests().antMatchers(HttpMethod.POST, "/restaurants").hasRole("ADMIN");
-        http.authorizeRequests().antMatchers(HttpMethod.PUT, "/restaurants/**").hasRole("ADMIN");
-        http.authorizeRequests().antMatchers(HttpMethod.DELETE, "/restaurants/**").hasRole("ADMIN");
+        http.authorizeRequests().antMatchers("/restaurants/**").hasRole("ADMIN");
+        http.authorizeRequests().antMatchers("/dishes/**").hasRole("ADMIN");
         http.authorizeRequests().antMatchers(HttpMethod.POST, "/menus").hasRole("ADMIN");
         http.authorizeRequests().antMatchers(HttpMethod.PUT, "/menus/**").hasRole("ADMIN");
         http.authorizeRequests().antMatchers(HttpMethod.DELETE, "/menus/**").hasRole("ADMIN");
