@@ -104,7 +104,7 @@ public class RestaurantControllerTests extends AbstractControllerTests {
                 .content(mapper.writeValueAsString(notValidRestaurant))
                 .with(adminAuth))
                 .andDo(print())
-                .andExpect(status().isBadRequest());
+                .andExpect(status().isUnprocessableEntity());
     }
 
     @Test
@@ -137,7 +137,7 @@ public class RestaurantControllerTests extends AbstractControllerTests {
                 .content(mapper.writeValueAsString(notValidRestaurant))
                 .with(adminAuth))
                 .andDo(print())
-                .andExpect(status().isBadRequest());
+                .andExpect(status().isUnprocessableEntity());
     }
 
     @Test

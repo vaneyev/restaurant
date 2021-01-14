@@ -32,7 +32,7 @@ public class GlobalExceptionHandler extends ResponseEntityExceptionHandler {
             stringBuilder.append("\n");
         });
         log.info(stringBuilder.toString());
-        return ResponseEntity.badRequest().body(stringBuilder.toString());
+        return ResponseEntity.unprocessableEntity().body(stringBuilder.toString());
     }
 
     @ExceptionHandler({NoSuchElementException.class, EmptyResultDataAccessException.class})

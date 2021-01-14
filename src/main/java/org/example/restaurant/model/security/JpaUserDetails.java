@@ -17,8 +17,4 @@ public class JpaUserDetails extends org.springframework.security.core.userdetail
     public Long getId() {
         return user.getId();
     }
-
-    public boolean isAdmin() {
-        return user.isAdmin();
-    }
 }

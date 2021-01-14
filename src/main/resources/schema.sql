@@ -2,6 +2,8 @@ DROP TABLE IF EXISTS dishes;
 DROP TABLE IF EXISTS votes;
 DROP TABLE IF EXISTS menus;
 DROP TABLE IF EXISTS restaurants;
+DROP TABLE IF EXISTS user_roles;
+DROP TABLE IF EXISTS roles;
 DROP TABLE IF EXISTS users;
 
 CREATE TABLE restaurants
@@ -21,14 +23,27 @@ CREATE TABLE users
     is_admin BOOLEAN NOT NULL
 );
 
-CREATE UNIQUE INDEX users_name_unuque
+CREATE TABLE roles
+(
+    id   IDENTITY PRIMARY KEY,
+    name VARCHAR NOT NULL
+);
+
+CREATE TABLE user_roles
+(
+    user_id BIGINT CONSTRAINT user_roles_users_id_fk REFERENCES users(id),
+    role_id BIGINT CONSTRAINT user_roles_roles_id_fk REFERENCES roles(id),
+    CONSTRAINT user_role_pk PRIMARY KEY (user_id, role_id)
+);
+
+CREATE UNIQUE INDEX users_name_unique
     ON users (name);
 
 CREATE TABLE menus
 (
     id            IDENTITY PRIMARY KEY,
     restaurant_id BIGINT NOT NULL,
-    menu_date          DATE   NOT NULL,
+    menu_date     DATE   NOT NULL,
     CONSTRAINT menus_pk
         PRIMARY KEY (id),
     CONSTRAINT menus_restaurants_id_fk

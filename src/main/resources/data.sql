@@ -1,6 +1,14 @@
+INSERT INTO public.roles (id, name)
+VALUES (1, 'ROLE_ADMIN'),
+       (2, 'ROLE_USER');
+
 INSERT INTO public.users (id, name, password, is_admin)
 VALUES (1, 'Admin', '{noop}pass', TRUE),
        (2, 'User', '{noop}pass', FALSE);
+
+INSERT INTO public.user_roles (user_id, role_id)
+VALUES (1, 1),
+       (2, 2);
 
 INSERT INTO public.restaurants (id, name)
 VALUES (1, 'First'),
@@ -18,5 +26,5 @@ VALUES (1, 1, 'Fish', 10),
        (4, 3, 'Beacon', 15);
 
 INSERT INTO public.votes (id, user_id, restaurant_id, date)
-VALUES (1, 1, 1,  '2020-12-25'),
-       (2, 2, 2,  '2020-12-25');
+VALUES (1, 1, 1, '2020-12-25'),
+       (2, 2, 2, '2020-12-25');

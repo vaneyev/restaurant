@@ -5,9 +5,8 @@ import lombok.Getter;
 import lombok.NoArgsConstructor;
 import lombok.Setter;
 
-import javax.persistence.Entity;
-import javax.persistence.Table;
-import javax.validation.constraints.NotNull;
+import javax.persistence.*;
+import java.util.Set;
 
 @Entity
 @Table(name = "users", schema = "public")
@@ -17,12 +16,16 @@ import javax.validation.constraints.NotNull;
 public class User extends AbstractNamedEntity {
     @JsonProperty(access = JsonProperty.Access.WRITE_ONLY)
     private String password;
-    @NotNull
-    private boolean isAdmin;
 
-    public User(Long id, String name, Boolean isAdmin) {
+    @ManyToMany
+    @JoinTable(
+            name = "user_roles",
+            joinColumns = @JoinColumn(name = "user_id"),
+            inverseJoinColumns = @JoinColumn(name = "role_id"))
+    private Set<Role> roles;
+
+    public User(Long id, String name) {
         super.setId(id);
         super.setName(name);
-        this.isAdmin = isAdmin;
     }
 }

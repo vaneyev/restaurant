@@ -128,7 +128,7 @@ class MenuControllerTests extends AbstractControllerTests {
                 .content(mapper.writeValueAsString(notValidMenu))
                 .with(adminAuth))
                 .andDo(print())
-                .andExpect(status().isBadRequest());
+                .andExpect(status().isUnprocessableEntity());
     }
 
     @Test
@@ -158,7 +158,7 @@ class MenuControllerTests extends AbstractControllerTests {
                 .content(mapper.writeValueAsString(menuWithNotValidDish))
                 .with(adminAuth))
                 .andDo(print())
-                .andExpect(status().isBadRequest());
+                .andExpect(status().isUnprocessableEntity());
     }
 
     @Test
@@ -206,7 +206,7 @@ class MenuControllerTests extends AbstractControllerTests {
                 .content(mapper.writeValueAsString(menuWithNotValidDish))
                 .with(adminAuth))
                 .andDo(print())
-                .andExpect(status().isBadRequest());
+                .andExpect(status().isUnprocessableEntity());
     }
 
     @Test
